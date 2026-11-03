@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول | سوق الفلاح</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body><header class="header">
+    <div class="container navbar">
+        <a href="index.html" class="logo">سوق <span>الفلاح</span></a>
+        <a href="index.html" class="btn btn-outline">الرئيسية</a>
+    </div>
+</header><main class="container">
+    <div class="form-container">    <h2>مرحباً بعودتك 🌱</h2>
+    <p style="text-align:center; margin-bottom:25px; color:#777;">
+        سجّل الدخول للوصول إلى حسابك في سوق الفلاح.
+    </p>
+
+    <form id="loginForm">
+
+        <div class="form-group">
+            <label for="email">البريد الإلكتروني</label>
+            <input
+                type="email"
+                id="email"
+                placeholder="example@email.com"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="password">كلمة المرور</label>
+            <input
+                type="password"
+                id="password"
+                placeholder="أدخل كلمة المرور"
+                required
+            >
+        </div>
+
+        <div id="authMessage" class="message"></div>
+
+        <button type="submit" class="btn btn-primary">
+            تسجيل الدخول
+        </button>
+
+    </form>
+
+    <div style="text-align:center; margin:20px 0;">
+        <span style="color:#777;">أو</span>
+    </div>
+
+    <button id="googleLogin" class="btn btn-outline">
+        المتابعة باستخدام Google
+    </button>
+
+    <p class="form-link">
+        ليس لديك حساب؟
+        <a href="register.html">إنشاء حساب جديد</a>
+    </p>
+
+</div>
+
+</main><footer class="footer">
+    <div class="container">
+        <h3>سوق الفلاح 🌿</h3>
+        <p>من أرض الجزائر إلى بيتك</p>
+    </div>
+</footer><script type="module" src="js/auth.js"></script></body>
+</html>
