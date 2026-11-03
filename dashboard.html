@@ -1,0 +1,165 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم البائع | سوق الفلاح</title>
+    <link rel="stylesheet" href="css/style.css">
+</head><body><header class="header">
+    <div class="container navbar">    <a href="index.html" class="logo">
+        سوق <span>الفلاح</span>
+    </a>
+
+    <div class="nav-buttons">
+        <a href="index.html" class="btn btn-outline">الرئيسية</a>
+        <button id="logoutButton" class="btn btn-primary">
+            تسجيل الخروج
+        </button>
+    </div>
+
+</div>
+
+</header><main class="container section"><div class="dashboard-header">
+    <h2>لوحة تحكم البائع 🌱</h2>
+    <p id="welcomeText">مرحباً بك في سوق الفلاح.</p>
+</div>
+
+<div class="dashboard-layout">
+
+    <!-- إضافة منتج -->
+
+    <section class="dashboard-card">
+
+        <h3>إضافة منتج جديد</h3>
+
+        <form id="productForm">
+
+            <div class="form-group">
+                <label for="productName">اسم المنتج</label>
+                <input
+                    type="text"
+                    id="productName"
+                    placeholder="مثال: طماطم طازجة"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="productCategory">التصنيف</label>
+                <select id="productCategory" required>
+                    <option value="">اختر التصنيف</option>
+                    <option value="vegetables">خضر</option>
+                    <option value="fruits">فواكه</option>
+                    <option value="grains">حبوب</option>
+                    <option value="other">منتجات أخرى</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="productWilaya">الولاية</label>
+                <select id="productWilaya" required>
+                    <option value="">اختر الولاية</option>
+                    <option>أدرار</option>
+                    <option>الشلف</option>
+                    <option>الأغواط</option>
+                    <option>باتنة</option>
+                    <option>بجاية</option>
+                    <option>البليدة</option>
+                    <option>البويرة</option>
+                    <option>تيزي وزو</option>
+                    <option>الجزائر</option>
+                    <option>الجلفة</option>
+                    <option>سطيف</option>
+                    <option>عنابة</option>
+                    <option>قسنطينة</option>
+                    <option>المدية</option>
+                    <option>مستغانم</option>
+                    <option>المسيلة</option>
+                    <option>معسكر</option>
+                    <option>ورقلة</option>
+                    <option>وهران</option>
+                    <option>بومرداس</option>
+                    <option>تيبازة</option>
+                    <option>عين الدفلى</option>
+                    <option>غرداية</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="productPrice">السعر بالدينار الجزائري</label>
+                <input
+                    type="number"
+                    id="productPrice"
+                    min="1"
+                    placeholder="مثال: 150"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="productUnit">وحدة البيع</label>
+                <select id="productUnit" required>
+                    <option value="">اختر الوحدة</option>
+                    <option value="كغ">كيلوغرام</option>
+                    <option value="غرام">غرام</option>
+                    <option value="لتر">لتر</option>
+                    <option value="حبة">حبة</option>
+                    <option value="صندوق">صندوق</option>
+                    <option value="كيس">كيس</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="productDescription">وصف المنتج</label>
+                <textarea
+                    id="productDescription"
+                    rows="4"
+                    placeholder="اكتب وصفاً مختصراً للمنتج..."
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="productImage">صورة المنتج</label>
+                <input
+                    type="file"
+                    id="productImage"
+                    accept="image/*"
+                    required
+                >
+            </div>
+
+            <div id="dashboardMessage" class="message"></div>
+
+            <button type="submit" class="btn btn-primary">
+                إضافة المنتج
+            </button>
+
+        </form>
+
+    </section>
+
+    <!-- المنتجات الخاصة بالبائع -->
+
+    <section class="dashboard-card">
+
+        <h3>منتجاتي</h3>
+
+        <p style="color:#777; margin-bottom:20px;">
+            هنا ستظهر جميع المنتجات التي أضفتها.
+        </p>
+
+        <div id="myProducts">
+            <p class="empty-message">
+                لم تتم إضافة منتجات بعد.
+            </p>
+        </div>
+
+    </section>
+
+</div>
+
+</main><footer class="footer">
+    <div class="container">
+        <h3>سوق الفلاح 🌿</h3>
+        <p>من أرض الجزائر إلى بيتك</p>
+    </div>
+</footer><script type="module" src="js/dashboard.js"></script></body>
+</html>
