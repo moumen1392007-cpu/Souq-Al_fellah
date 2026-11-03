@@ -1,46 +1,54 @@
+// Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-getAuth,
-GoogleAuthProvider
+  getAuth,
+  GoogleAuthProvider
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-getFirestore
+  getFirestore
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
-getStorage
+  getStorage
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-// ضع معلومات مشروع Firebase الخاص بك هنا لاحقاً
+// Firebase configuration
 const firebaseConfig = {
-apiKey: "YOUR_API_KEY",
-authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-projectId: "YOUR_PROJECT_ID",
-storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
-messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDZwlu-XEMmcXgpu-7JrnI4My62YJRJuSE",
+  authDomain: "souq-alfellah.firebaseapp.com",
+  projectId: "souq-alfellah",
+  storageBucket: "souq-alfellah.firebasestorage.app",
+  messagingSenderId: "348751722693",
+  appId: "1:348751722693:web:0d2de335e3166b8aba18ac",
+  measurementId: "G-GYWDV749D4"
 };
 
-export const firebaseReady =
-firebaseConfig.apiKey !== "YOUR_API_KEY" &&
-firebaseConfig.projectId !== "YOUR_PROJECT_ID";
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
-let app = null;
+// Authentication
+const auth = getAuth(app);
 
-export let auth = null;
-export let db = null;
-export let storage = null;
-export let googleProvider = null;
+// Google login
+const googleProvider = new GoogleAuthProvider();
 
-if (firebaseReady) {
-app = initializeApp(firebaseConfig);
+// Firestore database
+const db = getFirestore(app);
 
-auth = getAuth(app);
-db = getFirestore(app);
-storage = getStorage(app);
+// Firebase Storage
+const storage = getStorage(app);
 
-googleProvider = new GoogleAuthProvider();
+// Firebase status
+const firebaseReady = true;
 
-}
+// Export services
+export {
+  app,
+  auth,
+  googleProvider,
+  db,
+  storage,
+  firebaseReady
+};
