@@ -2,817 +2,908 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>سوق الفلاح</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+:root {
+  --green:#16834a;
+  --green-light:#e9f5ed;
+  --bg:#f4f7f4;
+  --text:#26372c;
+  --muted:#87938a;
+  --white:#fff;
+  --border:#e8eee8;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Cairo',sans-serif;
+}
+button,input,textarea{font-family:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+
+/* شاشة الزائر */
+#welcomeScreen{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
+.welcome-card{
+  background:white;
+  width:100%;
+  max-width:420px;
+  padding:35px 25px;
+  text-align:center;
+  border-radius:25px;
+  box-shadow:0 10px 35px #0000000c;
+}
+.welcome-card h1{color:var(--green);font-size:30px}
+.welcome-card p{color:var(--muted);line-height:2}
+.welcome-card a{
+  display:block;
+  text-decoration:none;
+  padding:13px;
+  border-radius:12px;
+  margin-top:12px;
+  font-weight:bold;
+}
+.register{background:var(--green);color:white}
+.login{border:1px solid var(--green);color:var(--green)}
+
+/* الرأس */
+header{
+  background:white;
+  padding:13px 5%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;
+  top:0;
+  z-index:10;
+  box-shadow:0 2px 12px #00000008;
+}
+.logo{font-size:22px;font-weight:800;color:var(--green)}
+.header-user{display:flex;align-items:center;gap:10px}
+.header-user img{
+  width:38px;height:38px;border-radius:50%;
+  object-fit:cover;background:var(--green-light)
+}
+.logout{
+  border:0;background:var(--green-light);
+  color:var(--green);padding:9px 12px;
+  border-radius:10px;font-weight:bold
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background: #f3f6f3;
-    color: #26352b;
-    padding-bottom: 85px;
+/* الصفحات */
+main{
+  width:100%;
+  max-width:720px;
+  margin:20px auto 100px;
+  padding:0 12px;
+}
+.page{display:none}
+.page.active{display:block}
+.page-title{font-size:22px;margin:15px 5px}
+.card{
+  background:white;
+  border-radius:17px;
+  padding:17px;
+  margin-bottom:15px;
+  box-shadow:0 3px 15px #00000006;
 }
 
-header {
-    background: #16834a;
-    color: white;
-    padding: 17px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* المنشورات */
+.post-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
+.avatar{
+  width:44px;height:44px;
+  border-radius:50%;
+  object-fit:cover;
+  background:var(--green-light);
+}
+.post-name{font-weight:700;font-size:14px}
+.post-role{font-size:12px;color:var(--muted)}
+.post-content{line-height:1.9;white-space:pre-wrap}
+.post-image{
+  width:100%;
+  max-height:420px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-top:10px;
+}
+.post-actions{
+  display:flex;
+  gap:8px;
+  border-top:1px solid var(--border);
+  padding-top:12px;
+  margin-top:12px;
+}
+.action-btn{
+  flex:1;
+  border:0;
+  background:#f5f8f5;
+  color:#647168;
+  padding:10px 5px;
+  border-radius:10px;
+  font-size:13px;
+}
+.action-btn.selected{color:var(--green);background:var(--green-light)}
+.comments{margin-top:12px}
+.comment{
+  background:#f5f7f5;
+  padding:9px 12px;
+  border-radius:12px;
+  margin-top:7px;
+  font-size:13px;
+}
+.comment-form{display:flex;gap:7px;margin-top:10px}
+.comment-form input{
+  flex:1;min-width:0;
+  border:1px solid var(--border);
+  border-radius:10px;padding:10px;
+}
+.comment-form button{
+  border:0;background:var(--green);
+  color:white;border-radius:10px;padding:0 15px
 }
 
-header h2 {
-    font-size: 21px;
+/* إنشاء منشور */
+textarea,.text-input{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:13px;
+  outline:none;
+  background:#fafcfa;
+  font-size:14px;
+}
+textarea{min-height:130px;resize:vertical}
+.publish-btn{
+  width:100%;border:0;
+  background:var(--green);color:white;
+  padding:13px;border-radius:12px;
+  font-weight:bold;margin-top:12px
+}
+.image-preview{
+  width:100%;max-height:250px;
+  object-fit:cover;border-radius:12px;
+  margin-top:10px
+}
+.file-label{
+  display:block;
+  background:var(--green-light);
+  color:var(--green);
+  padding:12px;
+  border-radius:10px;
+  text-align:center;
+  margin-top:10px;
+  cursor:pointer
 }
 
-header button {
-    background: white;
-    color: #16834a;
-    border: none;
-    padding: 9px 13px;
-    border-radius: 9px;
+/* الملف الشخصي */
+.profile-cover{
+  background:linear-gradient(130deg,#17683b,#72a85e);
+  height:115px;border-radius:17px 17px 0 0
+}
+.profile-info{text-align:center;padding-bottom:20px}
+.profile-avatar{
+  width:100px;height:100px;
+  border-radius:50%;object-fit:cover;
+  border:5px solid white;
+  margin-top:-50px;background:white
+}
+.profile-info h2{margin:5px}
+.profile-info p{color:var(--muted);margin:0}
+.edit-btn{
+  background:var(--green-light);color:var(--green);
+  border:0;border-radius:10px;padding:10px 18px;
+  margin-top:12px;font-weight:bold
+}
+.empty{text-align:center;color:var(--muted);padding:30px}
+
+/* إعدادات ورسائل */
+.setting-btn{
+  width:100%;padding:14px;
+  border:0;border-bottom:1px solid var(--border);
+  background:white;text-align:right;
+  color:var(--text);font-size:14px
 }
 
-.welcome {
-    padding: 35px 20px;
-    text-align: center;
-    background: white;
-    margin: 15px;
-    border-radius: 15px;
+/* القائمة السفلية */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:white;
+  display:flex;justify-content:space-around;
+  align-items:center;
+  padding:8px 3px calc(8px + env(safe-area-inset-bottom));
+  box-shadow:0 -4px 20px #0000000c;
+  z-index:20;
 }
-
-.welcome h2 {
-    color: #16834a;
-    margin-bottom: 12px;
+.nav-item{
+  position:relative;
+  border:0;background:transparent;
+  color:#87938a;
+  display:flex;flex-direction:column;
+  align-items:center;gap:3px;
+  flex:1;font-size:10px;
+  padding:3px 0;
 }
-
-.welcome button {
-    background: #16834a;
-    color: white;
-    border: none;
-    padding: 12px 22px;
-    border-radius: 9px;
-    margin: 10px 5px;
-    cursor: pointer;
+.nav-icon{
+  width:43px;height:43px;
+  display:flex;align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  transition:transform .3s,background .3s,color .3s;
 }
-
-.page {
-    display: none;
-    padding: 15px;
+.nav-icon svg{width:23px;height:23px;stroke:currentColor}
+.nav-item.active{color:var(--green);font-weight:bold}
+.nav-item.active .nav-icon{
+  background:var(--green);
+  color:white;
+  transform:scale(1.1);
+  box-shadow:0 4px 12px #16834a40;
 }
-
-.page.active {
-    display: block;
+.nav-item.add .nav-icon{
+  background:var(--green);
+  color:white;
 }
+.nav-item.add.active .nav-icon{transform:scale(1.12)}
 
-.page-title {
-    font-size: 21px;
-    margin-bottom: 17px;
-    color: #16834a;
-}
-
-.card {
-    background: white;
-    border-radius: 14px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 8px #0000000b;
-}
-
-.profile-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.avatar {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: #d9f0e1;
-    color: #16834a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-}
-
-.role-label {
-    font-size: 11px;
-    color: #16834a;
-    margin-top: 4px;
-}
-
-.post-content {
-    margin: 15px 0;
-    line-height: 1.7;
-    white-space: pre-wrap;
-}
-
-.post-image {
-    width: 100%;
-    max-height: 300px;
-    object-fit: cover;
-    border-radius: 10px;
-}
-
-.post-actions {
-    display: flex;
-    justify-content: space-around;
-    border-top: 1px solid #eee;
-    padding-top: 12px;
-    margin-top: 12px;
-}
-
-.post-actions button {
-    border: none;
-    background: none;
-    font-size: 14px;
-    color: #555;
-    cursor: pointer;
-}
-
-.post-actions button.selected {
-    color: #16834a;
-    font-weight: bold;
-}
-
-.comment-area {
-    display: flex;
-    gap: 7px;
-    margin-top: 12px;
-}
-
-input, textarea, select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 9px;
-    margin: 7px 0;
-    font-family: inherit;
-}
-
-textarea {
-    resize: vertical;
-    min-height: 90px;
-}
-
-.primary {
-    background: #16834a;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 9px;
-    width: 100%;
-    cursor: pointer;
-    margin-top: 8px;
-}
-
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    height: 70px;
-    background: white;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    box-shadow: 0 -3px 15px #00000012;
-    z-index: 1000;
-}
-
-.nav-item {
-    border: none;
-    background: none;
-    color: #888;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    cursor: pointer;
-    height: 60px;
-    justify-content: center;
-    position: relative;
-    flex: 1;
-}
-
-.nav-icon {
-    font-size: 22px;
-}
-
-.nav-item.active {
-    color: #16834a;
-}
-
-.nav-item.active::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    width: 28px;
-    height: 4px;
-    background: #16834a;
-    border-radius: 5px;
-}
-
-.nav-item.add {
-    color: white;
-}
-
-.nav-item.add .nav-icon {
-    background: #16834a;
-    width: 45px;
-    height: 45px;
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-}
-
-.empty {
-    text-align: center;
-    color: #888;
-    padding: 30px 10px;
-}
-
-#statusMessage {
-    text-align: center;
-    padding: 10px;
-    color: #16834a;
-}
-
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-}
-
-.product-card img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 9px;
-}
-
-.product-card h4 {
-    margin: 8px 0;
-}
-
-.product-card p {
-    font-size: 13px;
-    margin-top: 5px;
-}
-
-.comment {
-    background: #f3f6f3;
-    padding: 10px;
-    border-radius: 9px;
-    margin-top: 8px;
-    font-size: 13px;
-}
-
-@media(min-width:700px) {
-    .page {
-        max-width: 700px;
-        margin: auto;
-    }
+/* حركة مؤشر الدائرة */
+@media(min-width:700px){
+  main{margin-top:30px}
 }
 </style>
 </head>
 
 <body>
 
-<header>
-    <h2>🌱 سوق الفلاح</h2>
-    <button id="logoutButton">خروج</button>
-</header>
-
-<!-- شاشة الترحيب -->
-<section id="welcomeScreen" class="welcome" style="display:none">
-    <h2>مرحباً بك في سوق الفلاح</h2>
-    <p>منصة تجمع الفلاحين والمشترين</p>
-    <button onclick="location.href='register.html'">إنشاء حساب</button>
-    <button onclick="location.href='login.html'">تسجيل الدخول</button>
+<section id="welcomeScreen">
+  <div class="welcome-card">
+    <h1>سوق الفلاح</h1>
+    <p>من أرض الجزائر إلى بيتك</p>
+    <p>اكتشف المنتجات الفلاحية وتواصل مع الفلاحين والمشترين.</p>
+    <a class="register" href="register.html">إنشاء حساب جديد</a>
+    <a class="login" href="login.html">تسجيل الدخول</a>
+  </div>
 </section>
 
-<div id="marketScreen" style="display:none">
+<section id="appScreen" class="hidden">
 
-    <!-- الصفحة الرئيسية -->
-    <section id="homePage" class="page active">
-        <h3 class="page-title">🌾 آخر المنشورات</h3>
+<header>
+  <div class="logo">سوق الفلاح</div>
+  <div class="header-user">
+    <img id="headerAvatar" alt="الصورة الشخصية">
+    <span id="headerName">مستخدم</span>
+    <button class="logout" id="logoutButton">خروج</button>
+  </div>
+</header>
 
-        <div class="card">
-            <input id="searchInput" placeholder="ابحث عن منتج...">
-            <select id="categoryFilter">
-                <option value="">جميع التصنيفات</option>
-                <option value="خضر">خضر</option>
-                <option value="فواكه">فواكه</option>
-                <option value="حبوب">حبوب</option>
-            </select>
-        </div>
+<main>
 
-        <div id="statusMessage"></div>
+<!-- الرئيسية -->
+<section id="homePage" class="page active">
+  <h2 class="page-title">الرئيسية</h2>
+  <div id="postsFeed">
+    <div class="empty">جارٍ تحميل المنشورات...</div>
+  </div>
+</section>
 
-        <h3 style="margin:15px 0">📰 منشورات المجتمع</h3>
-        <div id="postsContainer">
-            <p class="empty">جارٍ تحميل المنشورات...</p>
-        </div>
+<!-- الملف الشخصي -->
+<section id="profilePage" class="page">
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="profile-cover"></div>
+    <div class="profile-info">
+      <img id="profileAvatar" class="profile-avatar" alt="الصورة الشخصية">
+      <h2 id="profileName">اسم المستخدم</h2>
+      <p id="profileRole">مستخدم</p>
+      <button class="edit-btn" id="editProfileBtn">تعديل الملف الشخصي</button>
+    </div>
+  </div>
 
-        <h3 style="margin:20px 0">🛒 المنتجات والأسعار</h3>
-        <div id="productsGrid" class="product-grid"></div>
-    </section>
+  <div id="editProfileBox" class="card hidden">
+    <h3>تعديل معلوماتي</h3>
+    <input id="newName" class="text-input" placeholder="اسمك الجديد">
+    <label class="file-label">
+      تغيير الصورة الشخصية
+      <input id="profileImageInput" type="file" accept="image/*" hidden>
+    </label>
+    <img id="profilePreview" class="image-preview hidden" alt="معاينة الصورة">
+    <button id="saveProfileBtn" class="publish-btn">حفظ التغييرات</button>
+    <p id="profileMessage"></p>
+  </div>
 
-    <!-- الملف الشخصي -->
-    <section id="profilePage" class="page">
-        <h3 class="page-title">👤 الملف الشخصي</h3>
-        <div class="card">
-            <div class="profile-header">
-                <div class="avatar">👤</div>
-                <div>
-                    <h3 id="profileName">المستخدم</h3>
-                    <p id="profileRole" class="role-label"></p>
-                </div>
-            </div>
-            <hr style="margin:15px 0;border:0;border-top:1px solid #eee">
-            <p id="profileEmail"></p>
-            <button class="primary" onclick="location.href='choose-role.html'">
-                🔄 تغيير نوع الحساب
-            </button>
-        </div>
-    </section>
+  <h3 class="page-title">منشوراتي</h3>
+  <div id="myPosts"></div>
+</section>
 
-    <!-- الإشعارات -->
-    <section id="notificationsPage" class="page">
-        <h3 class="page-title">🔔 الإشعارات</h3>
-        <div class="card">
-            <p class="empty">لا توجد إشعارات حالياً.</p>
-        </div>
-    </section>
+<!-- الإشعارات -->
+<section id="notificationsPage" class="page">
+  <h2 class="page-title">الإشعارات</h2>
+  <div class="card empty">ستظهر إشعارات التفاعلات والتعليقات هنا عند تفعيل نظام الإشعارات.</div>
+</section>
 
-    <!-- إضافة منشور -->
-    <section id="createPage" class="page">
-        <h3 class="page-title">➕ إنشاء منشور</h3>
+<!-- إنشاء منشور -->
+<section id="createPage" class="page">
+  <h2 class="page-title">إنشاء منشور</h2>
+  <div class="card">
+    <textarea id="postText" placeholder="ماذا تريد أن تشارك مع الآخرين؟"></textarea>
+    <label class="file-label">
+      إضافة صورة للمنشور
+      <input id="postImage" type="file" accept="image/*" hidden>
+    </label>
+    <img id="postPreview" class="image-preview hidden" alt="معاينة المنشور">
+    <button id="publishButton" class="publish-btn">نشر المنشور</button>
+    <p id="publishMessage"></p>
+  </div>
+</section>
 
-        <div class="card">
-            <textarea id="postText" placeholder="ماذا تريد أن تشارك مع المجتمع؟"></textarea>
+<!-- الرسائل -->
+<section id="messagesPage" class="page">
+  <h2 class="page-title">الرسائل</h2>
+  <div class="card empty">نظام المحادثات الخاصة سيتم ربطه في المرحلة القادمة.</div>
+</section>
 
-            <label>إضافة صورة (اختياري)</label>
-            <input type="file" id="postImage" accept="image/*">
+<!-- الإعدادات -->
+<section id="settingsPage" class="page">
+  <h2 class="page-title">الإعدادات</h2>
+  <div class="card">
+    <button class="setting-btn" id="settingsProfile">تعديل الملف الشخصي</button>
+    <button class="setting-btn" id="settingsLogout">تسجيل الخروج</button>
+  </div>
+</section>
 
-            <button class="primary" id="publishPost">
-                نشر المنشور
-            </button>
+</main>
 
-            <p id="postMessage"></p>
-        </div>
-    </section>
+<!-- القائمة السفلية بأيقونات SVG -->
+<nav class="bottom-nav">
 
-    <!-- الرسائل -->
-    <section id="messagesPage" class="page">
-        <h3 class="page-title">💬 الرسائل</h3>
-        <div class="card">
-            <p class="empty">لا توجد محادثات حالياً.</p>
-        </div>
-    </section>
+<button class="nav-item active" data-page="homePage">
+  <span class="nav-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 10.5 12 3l9 7.5"/>
+      <path d="M5.5 9.5V21h13V9.5"/>
+      <path d="M9 21v-7h6v7"/>
+    </svg>
+  </span>
+  الرئيسية
+</button>
 
-    <!-- الإعدادات -->
-    <section id="settingsPage" class="page">
-        <h3 class="page-title">⚙️ الإعدادات</h3>
+<button class="nav-item" data-page="profilePage">
+  <span class="nav-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <circle cx="12" cy="8" r="4"/>
+      <path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"/>
+    </svg>
+  </span>
+  حسابي
+</button>
 
-        <div class="card">
-            <button class="primary" onclick="location.href='choose-role.html'">
-                تغيير نوع الحساب
-            </button>
+<button class="nav-item" data-page="notificationsPage">
+  <span class="nav-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+      <path d="M10 21h4"/>
+    </svg>
+  </span>
+  الإشعارات
+</button>
 
-            <button class="primary" id="settingsLogout">
-                تسجيل الخروج
-            </button>
-        </div>
-    </section>
+<button class="nav-item add" data-page="createPage">
+  <span class="nav-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+      <path d="M12 5v14M5 12h14"/>
+    </svg>
+  </span>
+  نشر
+</button>
 
-</div>
+<button class="nav-item" data-page="messagesPage">
+  <span class="nav-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+      <path d="M4 5h16v12H9l-5 4V5z"/>
+      <path d="M8 10h8M8 13h5"/>
+    </svg>
+  </span>
+  الرسائل
+</button>
 
-<!-- شريط التنقل -->
-<nav class="bottom-nav" id="bottomNav" style="display:none">
-
-    <button class="nav-item active" data-page="profilePage">
-        <span class="nav-icon">👤</span>
-        <span>حسابي</span>
-    </button>
-
-    <button class="nav-item" data-page="notificationsPage">
-        <span class="nav-icon">🔔</span>
-        <span>الإشعارات</span>
-    </button>
-
-    <button class="nav-item add" data-page="createPage">
-        <span class="nav-icon">+</span>
-        <span>نشر</span>
-    </button>
-
-    <button class="nav-item" data-page="messagesPage">
-        <span class="nav-icon">💬</span>
-        <span>الرسائل</span>
-    </button>
-
-    <button class="nav-item" data-page="settingsPage">
-        <span class="nav-icon">⚙️</span>
-        <span>الإعدادات</span>
-    </button>
+<button class="nav-item" data-page="settingsPage">
+  <span class="nav-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.6a8 8 0 0 1-1.7 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.6-1.4-2.4 1.4-1.1a8 8 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.6a8 8 0 0 1 1.7-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.7 1l1.7-.6 1.4 2.4-1.4 1.1a8 8 0 0 1 0 2z"/>
+    </svg>
+  </span>
+  الإعدادات
+</button>
 
 </nav>
+</section>
 
 <script type="module">
+import {auth,db,storage} from "./js/firebase.js";
+
 import {
-    onAuthStateChanged,
-    signOut
+  onAuthStateChanged,
+  signOut,
+  updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-    collection,
-    addDoc,
-    getDocs,
-    query,
-    orderBy,
-    doc,
-    getDoc,
-    setDoc,
-    deleteDoc,
-    serverTimestamp,
-    onSnapshot
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  serverTimestamp,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
-    ref,
-    uploadBytes,
-    getDownloadURL
+  ref,
+  uploadBytes,
+  getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-import { auth, db, storage } from "./js/firebase.js";
+const welcomeScreen=document.getElementById("welcomeScreen");
+const appScreen=document.getElementById("appScreen");
 
-const welcomeScreen = document.getElementById("welcomeScreen");
-const marketScreen = document.getElementById("marketScreen");
-const bottomNav = document.getElementById("bottomNav");
+let currentUser=null;
+let currentRole="buyer";
+let currentProfile={};
+let selectedPostImage=null;
+let selectedProfileImage=null;
+let stopPosts=null;
 
-let currentUser = null;
-let currentUserData = null;
+const defaultAvatar="https://www.gravatar.com/avatar/?d=mp";
 
-const pages = document.querySelectorAll(".page");
-const navItems = document.querySelectorAll(".nav-item");
+function safe(value){
+  return String(value??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[c]));
+}
 
-// التنقل بين الأقسام
-navItems.forEach(button => {
-    button.addEventListener("click", () => {
-        const target = button.dataset.page;
+function showPage(pageId){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(pageId).classList.add("active");
 
-        pages.forEach(page => page.classList.remove("active"));
-        document.getElementById(target).classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(b=>{
+    b.classList.toggle("active",b.dataset.page===pageId);
+  });
 
-        navItems.forEach(item => item.classList.remove("active"));
-        button.classList.add("active");
+  if(pageId==="profilePage") loadMyPosts();
+}
+
+document.querySelectorAll(".nav-item").forEach(button=>{
+  button.addEventListener("click",()=>{
+    showPage(button.dataset.page);
+  });
+});
+
+async function loadUserProfile(user){
+  const userRef=doc(db,"users",user.uid);
+  const snap=await getDoc(userRef);
+
+  currentProfile=snap.exists()?snap.data():{};
+  currentRole=currentProfile.role||"buyer";
+
+  const name=currentProfile.displayName||user.displayName||user.email||"مستخدم";
+  const photo=currentProfile.photoURL||user.photoURL||defaultAvatar;
+
+  document.getElementById("headerName").textContent=name;
+  document.getElementById("profileName").textContent=name;
+  document.getElementById("newName").value=name;
+
+  document.getElementById("headerAvatar").src=photo;
+  document.getElementById("profileAvatar").src=photo;
+
+  document.getElementById("profileRole").textContent=
+    currentRole==="seller"?"بائع":"مشتري";
+}
+
+onAuthStateChanged(auth,async user=>{
+  currentUser=user;
+
+  if(user){
+    welcomeScreen.classList.add("hidden");
+    appScreen.classList.remove("hidden");
+
+    try{
+      await loadUserProfile(user);
+      listenToPosts();
+    }catch(error){
+      console.error(error);
+      alert("حدث خطأ أثناء تحميل الحساب.");
+    }
+  }else{
+    appScreen.classList.add("hidden");
+    welcomeScreen.classList.remove("hidden");
+
+    if(stopPosts) stopPosts();
+  }
+});
+
+async function uploadImage(file,path){
+  if(!file) return null;
+
+  if(!file.type.startsWith("image/")){
+    throw new Error("الملف المختار ليس صورة.");
+  }
+
+  if(file.size>5*1024*1024){
+    throw new Error("حجم الصورة يجب أن يكون أقل من 5 ميغابايت.");
+  }
+
+  const imageRef=ref(storage,path);
+  await uploadBytes(imageRef,file);
+  return await getDownloadURL(imageRef);
+}
+
+/* معاينة صورة المنشور */
+document.getElementById("postImage").addEventListener("change",e=>{
+  selectedPostImage=e.target.files[0];
+
+  const preview=document.getElementById("postPreview");
+
+  if(selectedPostImage){
+    preview.src=URL.createObjectURL(selectedPostImage);
+    preview.classList.remove("hidden");
+  }else{
+    preview.classList.add("hidden");
+  }
+});
+
+/* نشر منشور */
+document.getElementById("publishButton").addEventListener("click",async()=>{
+  const button=document.getElementById("publishButton");
+  const message=document.getElementById("publishMessage");
+  const content=document.getElementById("postText").value.trim();
+
+  if(!currentUser){
+    message.textContent="يجب تسجيل الدخول أولاً.";
+    return;
+  }
+
+  if(!content&&!selectedPostImage){
+    message.textContent="اكتب شيئاً أو أضف صورة.";
+    return;
+  }
+
+  button.disabled=true;
+  button.textContent="جارٍ النشر...";
+  message.textContent="";
+
+  try{
+    let imageURL="";
+
+    if(selectedPostImage){
+      imageURL=await uploadImage(
+        selectedPostImage,
+        `posts/${currentUser.uid}/${Date.now()}_${selectedPostImage.name}`
+      );
+    }
+
+    const name=currentProfile.displayName||
+      currentUser.displayName||
+      currentUser.email||
+      "مستخدم";
+
+    await addDoc(collection(db,"posts"),{
+      authorId:currentUser.uid,
+      authorName:name,
+      authorPhoto:currentProfile.photoURL||currentUser.photoURL||"",
+      authorRole:currentRole,
+      content:content,
+      imageURL:imageURL,
+      createdAt:serverTimestamp()
     });
+
+    document.getElementById("postText").value="";
+    document.getElementById("postImage").value="";
+    document.getElementById("postPreview").classList.add("hidden");
+    selectedPostImage=null;
+
+    message.textContent="تم نشر منشورك بنجاح.";
+    showPage("homePage");
+
+  }catch(error){
+    console.error(error);
+    message.textContent="تعذر النشر: "+error.message;
+  }finally{
+    button.disabled=false;
+    button.textContent="نشر المنشور";
+  }
 });
 
-// التحقق من تسجيل الدخول
-onAuthStateChanged(auth, async user => {
-    if (!user) {
-        welcomeScreen.style.display = "block";
-        marketScreen.style.display = "none";
-        bottomNav.style.display = "none";
-        return;
+/* تحميل المنشورات */
+function listenToPosts(){
+  const feed=document.getElementById("postsFeed");
+
+  const postsQuery=query(
+    collection(db,"posts"),
+    orderBy("createdAt","desc")
+  );
+
+  if(stopPosts) stopPosts();
+
+  stopPosts=onSnapshot(postsQuery,snapshot=>{
+    feed.innerHTML="";
+
+    if(snapshot.empty){
+      feed.innerHTML='<div class="card empty">لا توجد منشورات حتى الآن. كن أول من ينشر!</div>';
+      return;
     }
 
-    currentUser = user;
+    snapshot.forEach(postDoc=>{
+      const post=postDoc.data();
+      feed.appendChild(createPostCard(postDoc.id,post));
+    });
+  },error=>{
+    console.error(error);
+    feed.innerHTML='<div class="card empty">تعذر تحميل المنشورات. تحقق من اتصالك وقواعد Firebase.</div>';
+  });
+}
 
-    try {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        currentUserData = userDoc.exists() ? userDoc.data() : {};
+/* إنشاء بطاقة المنشور */
+function createPostCard(id,post){
+  const card=document.createElement("article");
+  card.className="card";
 
-        welcomeScreen.style.display = "none";
-        marketScreen.style.display = "block";
-        bottomNav.style.display = "flex";
+  const role=post.authorRole==="seller"?"بائع":"مشتري";
+  const photo=post.authorPhoto||defaultAvatar;
 
-        document.getElementById("profileName").textContent =
-            currentUserData.name || user.displayName || "مستخدم";
+  card.innerHTML=`
+    <div class="post-head">
+      <img class="avatar" src="${safe(photo)}" alt="">
+      <div>
+        <div class="post-name">${safe(post.authorName||"مستخدم")}</div>
+        <div class="post-role">${role}</div>
+      </div>
+    </div>
 
-        document.getElementById("profileRole").textContent =
-            currentUserData.role === "seller" ? "بائع" : "مشتري";
+    <div class="post-content">${safe(post.content||"")}</div>
 
-        document.getElementById("profileEmail").textContent =
-            user.email || "";
+    ${post.imageURL?`<img class="post-image" src="${safe(post.imageURL)}" alt="صورة المنشور">`:""}
 
-        loadPosts();
-        loadProducts();
+    <div class="post-actions">
+      <button class="action-btn like-btn">إعجاب</button>
+      <button class="action-btn dislike-btn">عدم إعجاب</button>
+      <button class="action-btn comment-toggle">تعليق</button>
+    </div>
 
-    } catch (error) {
-        console.error(error);
-        document.getElementById("statusMessage").textContent =
-            "حدث خطأ في تحميل الحساب.";
+    <div class="comments"></div>
+
+    <form class="comment-form">
+      <input type="text" placeholder="اكتب تعليقاً..." maxlength="500">
+      <button type="submit">إرسال</button>
+    </form>
+  `;
+
+  const likeBtn=card.querySelector(".like-btn");
+  const dislikeBtn=card.querySelector(".dislike-btn");
+  const commentBox=card.querySelector(".comments");
+  const commentForm=card.querySelector(".comment-form");
+
+  const reactionRef=doc(db,"posts",id,"reactions",currentUser.uid);
+
+  async function react(type){
+    try{
+      const snap=await getDoc(reactionRef);
+
+      if(snap.exists()&&snap.data().type===type){
+        await deleteDoc(reactionRef);
+      }else{
+        await setDoc(reactionRef,{
+          type:type,
+          userId:currentUser.uid
+        });
+      }
+      await loadReactionButtons();
+    }catch(error){
+      console.error(error);
+      alert("تعذر تسجيل التفاعل.");
     }
+  }
+
+  async function loadReactionButtons(){
+    try{
+      const snap=await getDoc(reactionRef);
+      likeBtn.classList.remove("selected");
+      dislikeBtn.classList.remove("selected");
+
+      if(snap.exists()){
+        if(snap.data().type==="like") likeBtn.classList.add("selected");
+        if(snap.data().type==="dislike") dislikeBtn.classList.add("selected");
+      }
+    }catch(error){console.error(error)}
+  }
+
+  likeBtn.addEventListener("click",()=>react("like"));
+  dislikeBtn.addEventListener("click",()=>react("dislike"));
+
+  card.querySelector(".comment-toggle").addEventListener("click",()=>{
+    commentForm.classList.toggle("hidden");
+  });
+
+  commentForm.addEventListener("submit",async e=>{
+    e.preventDefault();
+
+    const input=commentForm.querySelector("input");
+    const text=input.value.trim();
+
+    if(!text)return;
+
+    try{
+      await addDoc(collection(db,"posts",id,"comments"),{
+        authorId:currentUser.uid,
+        authorName:currentProfile.displayName||currentUser.email||"مستخدم",
+        text:text,
+        createdAt:serverTimestamp()
+      });
+      input.value="";
+    }catch(error){
+      console.error(error);
+      alert("تعذر إرسال التعليق.");
+    }
+  });
+
+  const commentsQuery=query(
+    collection(db,"posts",id,"comments"),
+    orderBy("createdAt","asc")
+  );
+
+  onSnapshot(commentsQuery,snapshot=>{
+    commentBox.innerHTML="";
+
+    snapshot.forEach(commentDoc=>{
+      const comment=commentDoc.data();
+      const item=document.createElement("div");
+      item.className="comment";
+      item.innerHTML=`<b>${safe(comment.authorName||"مستخدم")}</b><br>${safe(comment.text)}`;
+      commentBox.appendChild(item);
+    });
+  },error=>console.error(error));
+
+  loadReactionButtons();
+
+  return card;
+}
+
+/* تحميل منشوراتي */
+function loadMyPosts(){
+  const box=document.getElementById("myPosts");
+  box.innerHTML='<div class="empty">جارٍ تحميل منشوراتك...</div>';
+
+  const postsQuery=query(
+    collection(db,"posts"),
+    orderBy("createdAt","desc")
+  );
+
+  onSnapshot(postsQuery,snapshot=>{
+    box.innerHTML="";
+    let found=false;
+
+    snapshot.forEach(postDoc=>{
+      const post=postDoc.data();
+
+      if(post.authorId===currentUser.uid){
+        found=true;
+        box.appendChild(createPostCard(postDoc.id,post));
+      }
+    });
+
+    if(!found){
+      box.innerHTML='<div class="card empty">لم تنشر أي منشور بعد.</div>';
+    }
+  },error=>{
+    console.error(error);
+    box.innerHTML='<div class="empty">تعذر تحميل منشوراتك.</div>';
+  });
+}
+
+/* تعديل الملف الشخصي */
+document.getElementById("editProfileBtn").addEventListener("click",()=>{
+  document.getElementById("editProfileBox").classList.toggle("hidden");
 });
 
-// تسجيل الخروج
-async function logout() {
+document.getElementById("profileImageInput").addEventListener("change",e=>{
+  selectedProfileImage=e.target.files[0];
+
+  const preview=document.getElementById("profilePreview");
+
+  if(selectedProfileImage){
+    preview.src=URL.createObjectURL(selectedProfileImage);
+    preview.classList.remove("hidden");
+  }
+});
+
+document.getElementById("saveProfileBtn").addEventListener("click",async()=>{
+  const message=document.getElementById("profileMessage");
+  const button=document.getElementById("saveProfileBtn");
+
+  const name=document.getElementById("newName").value.trim();
+
+  if(!name){
+    message.textContent="اكتب اسمك أولاً.";
+    return;
+  }
+
+  button.disabled=true;
+  message.textContent="جارٍ الحفظ...";
+
+  try{
+    let photoURL=currentProfile.photoURL||currentUser.photoURL||"";
+
+    if(selectedProfileImage){
+      photoURL=await uploadImage(
+        selectedProfileImage,
+        `profiles/${currentUser.uid}/profile_${Date.now()}`
+      );
+    }
+
+    await updateProfile(currentUser,{
+      displayName:name,
+      photoURL:photoURL||null
+    });
+
+    await setDoc(doc(db,"users",currentUser.uid),{
+      uid:currentUser.uid,
+      displayName:name,
+      photoURL:photoURL,
+      role:currentRole
+    },{merge:true});
+
+    currentProfile.displayName=name;
+    currentProfile.photoURL=photoURL;
+
+    await loadUserProfile(currentUser);
+
+    message.textContent="تم تحديث ملفك الشخصي.";
+    selectedProfileImage=null;
+
+  }catch(error){
+    console.error(error);
+    message.textContent="تعذر الحفظ: "+error.message;
+  }finally{
+    button.disabled=false;
+  }
+});
+
+/* الإعدادات */
+document.getElementById("settingsProfile").addEventListener("click",()=>{
+  showPage("profilePage");
+  document.getElementById("editProfileBox").classList.remove("hidden");
+});
+
+async function logout(){
+  try{
     await signOut(auth);
-    location.href = "index.html";
+    window.location.href="index.html";
+  }catch(error){
+    alert("تعذر تسجيل الخروج.");
+    console.error(error);
+  }
 }
 
-document.getElementById("logoutButton").onclick = logout;
-document.getElementById("settingsLogout").onclick = logout;
+document.getElementById("logoutButton").addEventListener("click",logout);
+document.getElementById("settingsLogout").addEventListener("click",logout);
 
-// نشر منشور
-document.getElementById("publishPost").addEventListener("click", async () => {
-    const text = document.getElementById("postText").value.trim();
-    const imageFile = document.getElementById("postImage").files[0];
-    const message = document.getElementById("postMessage");
-
-    if (!text && !imageFile) {
-        message.textContent = "اكتب شيئاً أو اختر صورة.";
-        return;
-    }
-
-    try {
-        message.textContent = "جارٍ النشر...";
-
-        let imageUrl = "";
-
-        if (imageFile) {
-            if (!imageFile.type.startsWith("image/") ||
-                imageFile.size > 5 * 1024 * 1024) {
-                message.textContent = "الصورة يجب أن تكون أقل من 5 ميغابايت.";
-                return;
-            }
-
-            const imageRef = ref(
-                storage,
-                `posts/${currentUser.uid}/${Date.now()}_${imageFile.name}`
-            );
-
-            await uploadBytes(imageRef, imageFile);
-            imageUrl = await getDownloadURL(imageRef);
-        }
-
-        await addDoc(collection(db, "posts"), {
-            authorId: currentUser.uid,
-            authorName: currentUserData.name ||
-                        currentUser.displayName || "مستخدم",
-            authorRole: currentUserData.role || "buyer",
-            content: text,
-            image: imageUrl,
-            createdAt: serverTimestamp()
-        });
-
-        document.getElementById("postText").value = "";
-        document.getElementById("postImage").value = "";
-        message.textContent = "تم نشر المنشور بنجاح!";
-
-        showPage("homePage");
-
-    } catch (error) {
-        console.error(error);
-        message.textContent = "فشل النشر: " + error.message;
-    }
-});
-
-// تغيير الصفحة
-function showPage(id) {
-    pages.forEach(page => page.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-
-    navItems.forEach(item => {
-        item.classList.toggle("active", item.dataset.page === id);
-    });
-}
-
-// عرض المنشورات
-function loadPosts() {
-    const container = document.getElementById("postsContainer");
-
-    const postsQuery = query(
-        collection(db, "posts"),
-        orderBy("createdAt", "desc")
-    );
-
-    onSnapshot(postsQuery, snapshot => {
-        container.innerHTML = "";
-
-        if (snapshot.empty) {
-            container.innerHTML =
-                '<p class="empty">لا توجد منشورات بعد. كن أول من ينشر!</p>';
-            return;
-        }
-
-        snapshot.forEach(postDoc => {
-            const post = postDoc.data();
-            const postId = postDoc.id;
-
-            const card = document.createElement("div");
-            card.className = "card";
-
-            const profile = document.createElement("div");
-            profile.className = "profile-header";
-
-            const avatar = document.createElement("div");
-            avatar.className = "avatar";
-            avatar.textContent = "👤";
-
-            const info = document.createElement("div");
-
-            const name = document.createElement("strong");
-            name.textContent = post.authorName || "مستخدم";
-
-            const role = document.createElement("p");
-            role.className = "role-label";
-            role.textContent =
-                post.authorRole === "seller" ? "بائع" : "مشتري";
-
-            info.append(name, role);
-            profile.append(avatar, info);
-
-            const content = document.createElement("p");
-            content.className = "post-content";
-            content.textContent = post.content || "";
-
-            card.append(profile, content);
-
-            if (post.image) {
-                const image = document.createElement("img");
-                image.src = post.image;
-                image.className = "post-image";
-                card.append(image);
-            }
-
-            const actions = document.createElement("div");
-            actions.className = "post-actions";
-
-            const like = document.createElement("button");
-            like.textContent = "👍 إعجاب";
-
-            const dislike = document.createElement("button");
-            dislike.textContent = "👎 لم يعجبني";
-
-            const commentButton = document.createElement("button");
-            commentButton.textContent = "💬 تعليق";
-
-            actions.append(like, dislike, commentButton);
-            card.append(actions);
-
-            const comments = document.createElement("div");
-            const commentInput = document.createElement("input");
-            commentInput.placeholder = "اكتب تعليقاً...";
-
-            const sendComment = document.createElement("button");
-            sendComment.className = "primary";
-            sendComment.textContent = "إرسال التعليق";
-
-            const commentsList = document.createElement("div");
-
-            comments.append(commentInput, sendComment, commentsList);
-            comments.style.display = "none";
-            card.append(comments);
-
-            commentButton.onclick = () => {
-                comments.style.display =
-                    comments.style.display === "none" ? "block" : "none";
-            };
-
-            like.onclick = () => react(postId, "like");
-            dislike.onclick = () => react(postId, "dislike");
-
-            sendComment.onclick = async () => {
-                const text = commentInput.value.trim();
-                if (!text) return;
-
-                try {
-                    await addDoc(
-                        collection(db, "posts", postId, "comments"),
-                        {
-                            authorId: currentUser.uid,
-                            authorName: currentUserData.name ||
-                                        currentUser.displayName || "مستخدم",
-                            text,
-                            createdAt: serverTimestamp()
-                        }
-                    );
-
-                    commentInput.value = "";
-                } catch (error) {
-                    alert("تعذر إرسال التعليق: " + error.message);
-                }
-            };
-
-            onSnapshot(
-                collection(db, "posts", postId, "comments"),
-                commentSnapshot => {
-                    commentsList.innerHTML = "";
-
-                    commentSnapshot.forEach(commentDoc => {
-                        const comment = commentDoc.data();
-                        const item = document.createElement("div");
-                        item.className = "comment";
-
-                        const strong = document.createElement("strong");
-                        strong.textContent = comment.authorName || "مستخدم";
-
-                        const text = document.createElement("p");
-                        text.textContent = comment.text;
-
-                        item.append(strong, text);
-                        commentsList.append(item);
-                    });
-                }
-            );
-
-            card.append(document.createElement("hr"));
-            container.append(card);
-        });
-    }, error => {
-        console.error(error);
-        container.innerHTML =
-            '<p class="empty">تعذر تحميل المنشورات.</p>';
-    });
-}
-
-// الإعجاب وعدم الإعجاب
-async function react(postId, type) {
-    try {
-        const reactionRef = doc(
-            db,
-            "posts",
-            postId,
-            "reactions",
-            currentUser.uid
-        );
-
-        const existing = await getDoc(reactionRef);
-
-        if (existing.exists() && existing.data().type === type) {
-            await deleteDoc(reactionRef);
-        } else {
-            await setDoc(reactionRef, {
-                type,
-                userId: currentUser.uid
-            });
-        }
-    } catch (error) {
-        alert("تعذر تسجيل التفاعل: " + error.message);
-    }
-}
-
-// عرض المنتجات
-async function loadProducts() {
-    const grid = document.getElementById("productsGrid");
-
-    try {
-        const snapshot = await getDocs(collection(db, "products"));
-        grid.innerHTML = "";
-
-        snapshot.forEach(productDoc => {
-            const product = productDoc.data();
-
-            const card = document.createElement("div");
-            card.className = "card product-card";
-
-            if (product.image) {
-                const image = document.createElement("img");
-                image.src = product.image;
-                card.append(image);
-            }
-
-            const title = document.createElement("h4");
-            title.textContent = product.name || "منتج";
-
-            const price = document.createElement("p");
-            price.textContent =
-                `${product.price} دج / ${product.unit || "وحدة"}`;
-
-            const seller = document.createElement("p");
-            seller.textContent =
-                `البائع: ${product.sellerName || "بائع"}`;
-
-            const wilaya = document.createElement("p");
-            wilaya.textContent = product.wilaya || "";
-
-            card.append(title, price, seller, wilaya);
-            grid.append(card);
-        });
-
-    } catch (error) {
-        console.error(error);
-        grid.innerHTML =
-            '<p class="empty">تعذر تحميل المنتجات.</p>';
-    }
-}
 </script>
-
 </body>
 </html>
