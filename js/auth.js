@@ -1,238 +1,205 @@
 import {
-createUserWithEmailAndPassword,
-signInWithEmailAndPassword,
-GoogleAuthProvider,
-signInWithPopup,
-updateProfile
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup,
+    updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-doc,
-setDoc,
-getDoc,
-serverTimestamp
+    doc,
+    setDoc,
+    getDoc,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
-auth,
-db,
-firebaseReady
+    auth,
+    db,
+    firebaseReady
 } from "./firebase.js";
 
 const registerForm = document.getElementById("registerForm");
 const loginForm = document.getElementById("loginForm");
+
 const googleLogin = document.getElementById("googleLogin");
 const googleRegister = document.getElementById("googleRegister");
+
 const authMessage = document.getElementById("authMessage");
 
+// عرض الرسائل
 function showMessage(message, isError = false) {
-if (!authMessage) return;
+    if (!authMessage) return;
 
-authMessage.textContent = message;
-authMessage.style.display = "block";
-authMessage.style.color = isError ? "#c0392b" : "#287443";
-
+    authMessage.textContent = message;
+    authMessage.style.color = isError ? "#c0392b" : "#287b49";
 }
 
+// التحقق من Firebase
 function checkFirebase() {
-if (!firebaseReady || !auth || !db) {
-showMessage("تعذر الاتصال بقاعدة البيانات. حاول لاحقاً.", true);
-return false;
+    if (!firebaseReady || !auth || !db) {
+        showMessage("تعذر الاتصال بالخادم. حاول مجدداً.", true);
+        return false;
+    }
+
+    return true;
 }
 
-return true;
-
-}
-
-// حفظ معلومات المستخدم
+// إنشاء أو تحديث بيانات المستخدم
 async function saveUser(user, name = "", role = "buyer", wilaya = "") {
-const userRef = doc(db, "users", user.uid);
-const snapshot = await getDoc(userRef);
+    const userRef = doc(db, "users", user.uid);
+    const snapshot = await getDoc(userRef);
 
-if (!snapshot.exists()) {
-    const userData = {
-        uid: user.uid,
-        name: name || user.displayName || "مستخدم",
-        email: user.email || "",
-        role: role,
-        wilaya: wilaya,
-        createdAt: serverTimestamp()
-    };
+    if (!snapshot.exists()) {
+        await setDoc(userRef, {
+            uid: user.uid,
+            name: name || user.displayName || "",
+            email: user.email || "",
+            role: role,
+            wilaya: wilaya,
+            createdAt: serverTimestamp()
+        });
+    }
 
-    await setDoc(userRef, userData);
-    return userData;
+    return true;
 }
 
-return snapshot.data();
-
-}
-
-// الانتقال إلى واجهة السوق
+// الانتقال إلى اختيار الدور
 function goToMarket() {
-window.location.replace("index.html");
+    window.location.replace("choose-role.html");
 }
 
 // إنشاء حساب بالبريد الإلكتروني
 if (registerForm) {
-registerForm.addEventListener("submit", async (event) => {
-event.preventDefault();
+    registerForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-    if (!checkFirebase()) return;
+        if (!checkFirebase()) return;
 
-    const name = document.getElementById("fullName").value.trim();
-    const role = document.getElementById("role").value;
-    const wilaya = document.getElementById("wilaya").value;
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+        const name = document.getElementById("fullName").value.trim();
+        const role = document.getElementById("role").value;
+        const wilaya = document.getElementById("wilaya").value;
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
 
-    if (!name || !role || !wilaya || !email || !password) {
-        showMessage("يرجى ملء جميع الحقول.", true);
-        return;
-    }
+        if (!name || !role || !wilaya || !email || !password) {
+            showMessage("يرجى ملء جميع الحقول.", true);
+            return;
+        }
 
-    if (password.length < 6) {
-        showMessage("كلمة المرور يجب أن تكون 6 أحرف على الأقل.", true);
-        return;
-    }
+        try {
+            showMessage("جارٍ إنشاء حسابك...");
 
-    try {
-        showMessage("جارٍ إنشاء حسابك...");
+            const result = await createUserWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
 
-        const result = await createUserWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
+            await updateProfile(result.user, {
+                displayName: name
+            });
 
-        await updateProfile(result.user, {
-            displayName: name
-        });
+            await saveUser(result.user, name, role, wilaya);
 
-        await saveUser(result.user, name, role, wilaya);
+            showMessage("تم إنشاء الحساب بنجاح!");
 
-        showMessage("تم إنشاء حسابك بنجاح!");
+            setTimeout(goToMarket, 700);
 
-        setTimeout(goToMarket, 800);
-
-    } catch (error) {
-        console.error(error);
-        showMessage(getErrorMessage(error), true);
-    }
-});
-
+        } catch (error) {
+            console.error(error);
+            showMessage(getErrorMessage(error.code), true);
+        }
+    });
 }
 
 // تسجيل الدخول بالبريد الإلكتروني
 if (loginForm) {
-loginForm.addEventListener("submit", async (event) => {
-event.preventDefault();
+    loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-    if (!checkFirebase()) return;
+        if (!checkFirebase()) return;
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
 
-    if (!email || !password) {
-        showMessage("أدخل البريد الإلكتروني وكلمة المرور.", true);
-        return;
-    }
+        if (!email || !password) {
+            showMessage("أدخل البريد الإلكتروني وكلمة المرور.", true);
+            return;
+        }
 
-    try {
-        showMessage("جارٍ تسجيل الدخول...");
+        try {
+            showMessage("جارٍ تسجيل الدخول...");
 
-        const result = await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
+            const result = await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
 
-        // التأكد من وجود بيانات المستخدم
-        await saveUser(result.user);
+            await saveUser(result.user);
 
-        showMessage("تم تسجيل الدخول بنجاح!");
+            showMessage("تم تسجيل الدخول بنجاح!");
 
-        setTimeout(goToMarket, 800);
+            setTimeout(goToMarket, 700);
 
-    } catch (error) {
-        console.error(error);
-        showMessage(getErrorMessage(error), true);
-    }
-});
-
+        } catch (error) {
+            console.error(error);
+            showMessage(getErrorMessage(error.code), true);
+        }
+    });
 }
 
 // تسجيل الدخول باستخدام Google
 async function googleSignIn() {
-if (!checkFirebase()) return;
+    if (!checkFirebase()) return;
 
-try {
-    showMessage("جارٍ الاتصال بحساب Google...");
+    try {
+        showMessage("جارٍ الاتصال بحساب Google...");
 
-    const provider = new GoogleAuthProvider();
+        const provider = new GoogleAuthProvider();
 
-    const result = await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, provider);
 
-    await saveUser(
-        result.user,
-        result.user.displayName || "مستخدم",
-        "buyer",
-        ""
-    );
+        await saveUser(
+            result.user,
+            result.user.displayName || "",
+            "buyer",
+            ""
+        );
 
-    showMessage("تم تسجيل الدخول بنجاح!");
+        showMessage("تم تسجيل الدخول بنجاح!");
 
-    setTimeout(goToMarket, 800);
+        setTimeout(goToMarket, 700);
 
-} catch (error) {
-    console.error(error);
-    showMessage(getErrorMessage(error), true);
-}
-
+    } catch (error) {
+        console.error(error);
+        showMessage(getErrorMessage(error.code), true);
+    }
 }
 
 if (googleLogin) {
-googleLogin.addEventListener("click", googleSignIn);
+    googleLogin.addEventListener("click", googleSignIn);
 }
 
 if (googleRegister) {
-googleRegister.addEventListener("click", googleSignIn);
+    googleRegister.addEventListener("click", googleSignIn);
 }
 
 // ترجمة رسائل الأخطاء
-function getErrorMessage(error) {
-const messages = {
-"auth/email-already-in-use":
-"هذا البريد الإلكتروني مستخدم بالفعل.",
+function getErrorMessage(code) {
+    const errors = {
+        "auth/email-already-in-use": "هذا البريد الإلكتروني مستخدم بالفعل.",
+        "auth/invalid-email": "البريد الإلكتروني غير صحيح.",
+        "auth/weak-password": "كلمة المرور ضعيفة جداً.",
+        "auth/user-not-found": "الحساب غير موجود.",
+        "auth/wrong-password": "كلمة المرور غير صحيحة.",
+        "auth/invalid-credential": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+        "auth/popup-closed-by-user": "أغلقت نافذة Google قبل إكمال العملية.",
+        "auth/popup-blocked": "المتصفح منع نافذة تسجيل الدخول.",
+        "auth/unauthorized-domain": "النطاق غير مصرح به في Firebase.",
+        "auth/network-request-failed": "تحقق من اتصال الإنترنت."
+    };
 
-    "auth/invalid-email":
-        "البريد الإلكتروني غير صحيح.",
-
-    "auth/weak-password":
-        "كلمة المرور ضعيفة جداً.",
-
-    "auth/user-not-found":
-        "هذا الحساب غير موجود.",
-
-    "auth/wrong-password":
-        "كلمة المرور غير صحيحة.",
-
-    "auth/invalid-credential":
-        "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-
-    "auth/popup-closed-by-user":
-        "تم إغلاق نافذة Google.",
-
-    "auth/popup-blocked":
-        "المتصفح منع نافذة Google. اسمح بالنوافذ المنبثقة.",
-
-    "auth/unauthorized-domain":
-        "عنوان الموقع غير مضاف إلى النطاقات المسموح بها في Firebase.",
-
-    "auth/network-request-failed":
-        "تحقق من اتصال الإنترنت."
-};
-
-return messages[error.code] ||
-    "حدث خطأ أثناء العملية. حاول مرة أخرى.";
-
+    return errors[code] || "حدث خطأ، حاول مرة أخرى.";
 }
