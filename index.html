@@ -17,57 +17,33 @@
   --border:#e8eee8;
 }
 *{box-sizing:border-box}
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:'Cairo',sans-serif;
-}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif}
 button,input,textarea{font-family:inherit}
 button{cursor:pointer}
 .hidden{display:none!important}
 
-/* شاشة الزائر */
 #welcomeScreen{
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:20px;
+  min-height:100vh;display:flex;justify-content:center;
+  align-items:center;padding:20px
 }
 .welcome-card{
-  background:white;
-  width:100%;
-  max-width:420px;
-  padding:35px 25px;
-  text-align:center;
-  border-radius:25px;
-  box-shadow:0 10px 35px #0000000c;
+  background:white;width:100%;max-width:420px;padding:35px 25px;
+  text-align:center;border-radius:25px;box-shadow:0 10px 35px #0000000c
 }
 .welcome-card h1{color:var(--green);font-size:30px}
 .welcome-card p{color:var(--muted);line-height:2}
 .welcome-card a{
-  display:block;
-  text-decoration:none;
-  padding:13px;
-  border-radius:12px;
-  margin-top:12px;
-  font-weight:bold;
+  display:block;text-decoration:none;padding:13px;
+  border-radius:12px;margin-top:12px;font-weight:bold
 }
 .register{background:var(--green);color:white}
 .login{border:1px solid var(--green);color:var(--green)}
 
-/* الرأس */
 header{
-  background:white;
-  padding:13px 5%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  position:sticky;
-  top:0;
-  z-index:10;
-  box-shadow:0 2px 12px #00000008;
+  background:white;padding:13px 5%;display:flex;
+  justify-content:space-between;align-items:center;
+  position:sticky;top:0;z-index:10;
+  box-shadow:0 2px 12px #00000008
 }
 .logo{font-size:22px;font-weight:800;color:var(--green)}
 .header-user{display:flex;align-items:center;gap:10px}
@@ -76,194 +52,105 @@ header{
   object-fit:cover;background:var(--green-light)
 }
 .logout{
-  border:0;background:var(--green-light);
-  color:var(--green);padding:9px 12px;
-  border-radius:10px;font-weight:bold
+  border:0;background:var(--green-light);color:var(--green);
+  padding:9px 12px;border-radius:10px;font-weight:bold
 }
 
-/* الصفحات */
-main{
-  width:100%;
-  max-width:720px;
-  margin:20px auto 100px;
-  padding:0 12px;
-}
+main{width:100%;max-width:720px;margin:20px auto 100px;padding:0 12px}
 .page{display:none}
 .page.active{display:block}
 .page-title{font-size:22px;margin:15px 5px}
 .card{
-  background:white;
-  border-radius:17px;
-  padding:17px;
-  margin-bottom:15px;
-  box-shadow:0 3px 15px #00000006;
+  background:white;border-radius:17px;padding:17px;
+  margin-bottom:15px;box-shadow:0 3px 15px #00000006
 }
 
-/* المنشورات */
-.post-head{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:12px;
-}
+.post-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .avatar{
-  width:44px;height:44px;
-  border-radius:50%;
-  object-fit:cover;
-  background:var(--green-light);
+  width:44px;height:44px;border-radius:50%;
+  object-fit:cover;background:var(--green-light)
 }
 .post-name{font-weight:700;font-size:14px}
 .post-role{font-size:12px;color:var(--muted)}
 .post-content{line-height:1.9;white-space:pre-wrap}
 .post-image{
-  width:100%;
-  max-height:420px;
-  object-fit:cover;
-  border-radius:12px;
-  margin-top:10px;
+  width:100%;max-height:420px;object-fit:cover;
+  border-radius:12px;margin-top:10px
 }
 .post-actions{
-  display:flex;
-  gap:8px;
-  border-top:1px solid var(--border);
-  padding-top:12px;
-  margin-top:12px;
+  display:flex;gap:8px;border-top:1px solid var(--border);
+  padding-top:12px;margin-top:12px
 }
 .action-btn{
-  flex:1;
-  border:0;
-  background:#f5f8f5;
-  color:#647168;
-  padding:10px 5px;
-  border-radius:10px;
-  font-size:13px;
+  flex:1;border:0;background:#f5f8f5;color:#647168;
+  padding:10px 5px;border-radius:10px;font-size:13px
 }
 .action-btn.selected{color:var(--green);background:var(--green-light)}
-.comments{margin-top:12px}
-.comment{
-  background:#f5f7f5;
-  padding:9px 12px;
-  border-radius:12px;
-  margin-top:7px;
-  font-size:13px;
-}
+.comment{background:#f5f7f5;padding:9px 12px;border-radius:12px;margin-top:7px;font-size:13px}
 .comment-form{display:flex;gap:7px;margin-top:10px}
 .comment-form input{
-  flex:1;min-width:0;
-  border:1px solid var(--border);
-  border-radius:10px;padding:10px;
+  flex:1;min-width:0;border:1px solid var(--border);
+  border-radius:10px;padding:10px
 }
-.comment-form button{
-  border:0;background:var(--green);
-  color:white;border-radius:10px;padding:0 15px
-}
+.comment-form button{border:0;background:var(--green);color:white;border-radius:10px;padding:0 15px}
 
-/* إنشاء منشور */
 textarea,.text-input{
-  width:100%;
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:13px;
-  outline:none;
-  background:#fafcfa;
-  font-size:14px;
+  width:100%;border:1px solid var(--border);border-radius:12px;
+  padding:13px;outline:none;background:#fafcfa;font-size:14px
 }
 textarea{min-height:130px;resize:vertical}
 .publish-btn{
-  width:100%;border:0;
-  background:var(--green);color:white;
-  padding:13px;border-radius:12px;
-  font-weight:bold;margin-top:12px
+  width:100%;border:0;background:var(--green);color:white;
+  padding:13px;border-radius:12px;font-weight:bold;margin-top:12px
 }
-.image-preview{
-  width:100%;max-height:250px;
-  object-fit:cover;border-radius:12px;
-  margin-top:10px
-}
+.image-preview{width:100%;max-height:250px;object-fit:cover;border-radius:12px;margin-top:10px}
 .file-label{
-  display:block;
-  background:var(--green-light);
-  color:var(--green);
-  padding:12px;
-  border-radius:10px;
-  text-align:center;
-  margin-top:10px;
-  cursor:pointer
+  display:block;background:var(--green-light);color:var(--green);
+  padding:12px;border-radius:10px;text-align:center;margin-top:10px;cursor:pointer
 }
 
-/* الملف الشخصي */
-.profile-cover{
-  background:linear-gradient(130deg,#17683b,#72a85e);
-  height:115px;border-radius:17px 17px 0 0
-}
+.profile-cover{background:linear-gradient(130deg,#17683b,#72a85e);height:115px;border-radius:17px 17px 0 0}
 .profile-info{text-align:center;padding-bottom:20px}
 .profile-avatar{
-  width:100px;height:100px;
-  border-radius:50%;object-fit:cover;
-  border:5px solid white;
-  margin-top:-50px;background:white
+  width:100px;height:100px;border-radius:50%;object-fit:cover;
+  border:5px solid white;margin-top:-50px;background:white
 }
 .profile-info h2{margin:5px}
 .profile-info p{color:var(--muted);margin:0}
 .edit-btn{
   background:var(--green-light);color:var(--green);
-  border:0;border-radius:10px;padding:10px 18px;
-  margin-top:12px;font-weight:bold
+  border:0;border-radius:10px;padding:10px 18px;margin-top:12px;font-weight:bold
 }
 .empty{text-align:center;color:var(--muted);padding:30px}
-
-/* إعدادات ورسائل */
 .setting-btn{
-  width:100%;padding:14px;
-  border:0;border-bottom:1px solid var(--border);
-  background:white;text-align:right;
-  color:var(--text);font-size:14px
+  width:100%;padding:14px;border:0;border-bottom:1px solid var(--border);
+  background:white;text-align:right;color:var(--text);font-size:14px
 }
 
-/* القائمة السفلية */
 .bottom-nav{
-  position:fixed;bottom:0;left:0;right:0;
-  background:white;
-  display:flex;justify-content:space-around;
-  align-items:center;
+  position:fixed;bottom:0;left:0;right:0;background:white;
+  display:flex;justify-content:space-around;align-items:center;
   padding:8px 3px calc(8px + env(safe-area-inset-bottom));
-  box-shadow:0 -4px 20px #0000000c;
-  z-index:20;
+  box-shadow:0 -4px 20px #0000000c;z-index:20
 }
 .nav-item{
-  position:relative;
-  border:0;background:transparent;
-  color:#87938a;
-  display:flex;flex-direction:column;
-  align-items:center;gap:3px;
-  flex:1;font-size:10px;
-  padding:3px 0;
+  position:relative;border:0;background:transparent;color:#87938a;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  flex:1;font-size:10px;padding:3px 0
 }
 .nav-icon{
-  width:43px;height:43px;
-  display:flex;align-items:center;
-  justify-content:center;
-  border-radius:50%;
-  transition:transform .3s,background .3s,color .3s;
+  width:43px;height:43px;display:flex;align-items:center;
+  justify-content:center;border-radius:50%;
+  transition:transform .3s,background .3s,color .3s
 }
 .nav-icon svg{width:23px;height:23px;stroke:currentColor}
 .nav-item.active{color:var(--green);font-weight:bold}
 .nav-item.active .nav-icon{
-  background:var(--green);
-  color:white;
-  transform:scale(1.1);
-  box-shadow:0 4px 12px #16834a40;
+  background:var(--green);color:white;transform:scale(1.1);
+  box-shadow:0 4px 12px #16834a40
 }
-.nav-item.add .nav-icon{
-  background:var(--green);
-  color:white;
-}
+.nav-item.add .nav-icon{background:var(--green);color:white}
 .nav-item.add.active .nav-icon{transform:scale(1.12)}
-
-/* حركة مؤشر الدائرة */
-@media(min-width:700px){
-  main{margin-top:30px}
-}
 </style>
 </head>
 
@@ -292,15 +179,11 @@ textarea{min-height:130px;resize:vertical}
 
 <main>
 
-<!-- الرئيسية -->
 <section id="homePage" class="page active">
   <h2 class="page-title">الرئيسية</h2>
-  <div id="postsFeed">
-    <div class="empty">جارٍ تحميل المنشورات...</div>
-  </div>
+  <div id="postsFeed"><div class="empty">جارٍ تحميل المنشورات...</div></div>
 </section>
 
-<!-- الملف الشخصي -->
 <section id="profilePage" class="page">
   <div class="card" style="padding:0;overflow:hidden">
     <div class="profile-cover"></div>
@@ -328,13 +211,11 @@ textarea{min-height:130px;resize:vertical}
   <div id="myPosts"></div>
 </section>
 
-<!-- الإشعارات -->
 <section id="notificationsPage" class="page">
   <h2 class="page-title">الإشعارات</h2>
   <div class="card empty">ستظهر إشعارات التفاعلات والتعليقات هنا عند تفعيل نظام الإشعارات.</div>
 </section>
 
-<!-- إنشاء منشور -->
 <section id="createPage" class="page">
   <h2 class="page-title">إنشاء منشور</h2>
   <div class="card">
@@ -349,13 +230,11 @@ textarea{min-height:130px;resize:vertical}
   </div>
 </section>
 
-<!-- الرسائل -->
 <section id="messagesPage" class="page">
   <h2 class="page-title">الرسائل</h2>
   <div class="card empty">نظام المحادثات الخاصة سيتم ربطه في المرحلة القادمة.</div>
 </section>
 
-<!-- الإعدادات -->
 <section id="settingsPage" class="page">
   <h2 class="page-title">الإعدادات</h2>
   <div class="card">
@@ -366,38 +245,30 @@ textarea{min-height:130px;resize:vertical}
 
 </main>
 
-<!-- القائمة السفلية بأيقونات SVG -->
 <nav class="bottom-nav">
 
 <button class="nav-item active" data-page="homePage">
   <span class="nav-icon">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 10.5 12 3l9 7.5"/>
-      <path d="M5.5 9.5V21h13V9.5"/>
-      <path d="M9 21v-7h6v7"/>
+      <path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/><path d="M9 21v-7h6v7"/>
     </svg>
-  </span>
-  الرئيسية
+  </span>الرئيسية
 </button>
 
 <button class="nav-item" data-page="profilePage">
   <span class="nav-icon">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-      <circle cx="12" cy="8" r="4"/>
-      <path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"/>
+      <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"/>
     </svg>
-  </span>
-  حسابي
+  </span>حسابي
 </button>
 
 <button class="nav-item" data-page="notificationsPage">
   <span class="nav-icon">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-      <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
-      <path d="M10 21h4"/>
+      <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/>
     </svg>
-  </span>
-  الإشعارات
+  </span>الإشعارات
 </button>
 
 <button class="nav-item add" data-page="createPage">
@@ -405,18 +276,15 @@ textarea{min-height:130px;resize:vertical}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
       <path d="M12 5v14M5 12h14"/>
     </svg>
-  </span>
-  نشر
+  </span>نشر
 </button>
 
 <button class="nav-item" data-page="messagesPage">
   <span class="nav-icon">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
-      <path d="M4 5h16v12H9l-5 4V5z"/>
-      <path d="M8 10h8M8 13h5"/>
+      <path d="M4 5h16v12H9l-5 4V5z"/><path d="M8 10h8M8 13h5"/>
     </svg>
-  </span>
-  الرسائل
+  </span>الرسائل
 </button>
 
 <button class="nav-item" data-page="settingsPage">
@@ -425,8 +293,7 @@ textarea{min-height:130px;resize:vertical}
       <circle cx="12" cy="12" r="3"/>
       <path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.6a8 8 0 0 1-1.7 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.6-1.4-2.4 1.4-1.1a8 8 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.6a8 8 0 0 1 1.7-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.7 1l1.7-.6 1.4 2.4-1.4 1.1a8 8 0 0 1 0 2z"/>
     </svg>
-  </span>
-  الإعدادات
+  </span>الإعدادات
 </button>
 
 </nav>
@@ -436,29 +303,16 @@ textarea{min-height:130px;resize:vertical}
 import {auth,db,storage} from "./js/firebase.js";
 
 import {
-  onAuthStateChanged,
-  signOut,
-  updateProfile
+  onAuthStateChanged,signOut,updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-  collection,
-  addDoc,
-  query,
-  orderBy,
-  onSnapshot,
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  serverTimestamp,
-  deleteDoc
+  collection,addDoc,query,orderBy,onSnapshot,doc,getDoc,
+  setDoc,serverTimestamp,deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
-  ref,
-  uploadBytes,
-  getDownloadURL
+  ref,uploadBytes,getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const welcomeScreen=document.getElementById("welcomeScreen");
@@ -487,13 +341,11 @@ function showPage(pageId){
     b.classList.toggle("active",b.dataset.page===pageId);
   });
 
-  if(pageId==="profilePage") loadMyPosts();
+  if(pageId==="profilePage")loadMyPosts();
 }
 
 document.querySelectorAll(".nav-item").forEach(button=>{
-  button.addEventListener("click",()=>{
-    showPage(button.dataset.page);
-  });
+  button.addEventListener("click",()=>showPage(button.dataset.page));
 });
 
 async function loadUserProfile(user){
@@ -509,12 +361,9 @@ async function loadUserProfile(user){
   document.getElementById("headerName").textContent=name;
   document.getElementById("profileName").textContent=name;
   document.getElementById("newName").value=name;
-
   document.getElementById("headerAvatar").src=photo;
   document.getElementById("profileAvatar").src=photo;
-
-  document.getElementById("profileRole").textContent=
-    currentRole==="seller"?"بائع":"مشتري";
+  document.getElementById("profileRole").textContent=currentRole==="seller"?"بائع":"مشتري";
 }
 
 onAuthStateChanged(auth,async user=>{
@@ -528,62 +377,44 @@ onAuthStateChanged(auth,async user=>{
       await loadUserProfile(user);
       listenToPosts();
     }catch(error){
-      console.error(error);
-      alert("حدث خطأ أثناء تحميل الحساب.");
+      console.error("Account loading error:",error);
+      alert("خطأ أثناء تحميل الحساب:\n"+error.code+"\n"+error.message);
     }
   }else{
     appScreen.classList.add("hidden");
     welcomeScreen.classList.remove("hidden");
-
-    if(stopPosts) stopPosts();
+    if(stopPosts)stopPosts();
   }
 });
 
 async function uploadImage(file,path){
-  if(!file) return null;
+  if(!file)return null;
 
-  if(!file.type.startsWith("image/")){
-    throw new Error("الملف المختار ليس صورة.");
-  }
-
-  if(file.size>5*1024*1024){
-    throw new Error("حجم الصورة يجب أن يكون أقل من 5 ميغابايت.");
-  }
+  if(!file.type.startsWith("image/"))throw new Error("الملف المختار ليس صورة.");
+  if(file.size>5*1024*1024)throw new Error("حجم الصورة يجب أن يكون أقل من 5 ميغابايت.");
 
   const imageRef=ref(storage,path);
   await uploadBytes(imageRef,file);
   return await getDownloadURL(imageRef);
 }
 
-/* معاينة صورة المنشور */
 document.getElementById("postImage").addEventListener("change",e=>{
   selectedPostImage=e.target.files[0];
-
   const preview=document.getElementById("postPreview");
 
   if(selectedPostImage){
     preview.src=URL.createObjectURL(selectedPostImage);
     preview.classList.remove("hidden");
-  }else{
-    preview.classList.add("hidden");
-  }
+  }else preview.classList.add("hidden");
 });
 
-/* نشر منشور */
 document.getElementById("publishButton").addEventListener("click",async()=>{
   const button=document.getElementById("publishButton");
   const message=document.getElementById("publishMessage");
   const content=document.getElementById("postText").value.trim();
 
-  if(!currentUser){
-    message.textContent="يجب تسجيل الدخول أولاً.";
-    return;
-  }
-
-  if(!content&&!selectedPostImage){
-    message.textContent="اكتب شيئاً أو أضف صورة.";
-    return;
-  }
+  if(!currentUser){message.textContent="يجب تسجيل الدخول أولاً.";return;}
+  if(!content&&!selectedPostImage){message.textContent="اكتب شيئاً أو أضف صورة.";return;}
 
   button.disabled=true;
   button.textContent="جارٍ النشر...";
@@ -599,10 +430,7 @@ document.getElementById("publishButton").addEventListener("click",async()=>{
       );
     }
 
-    const name=currentProfile.displayName||
-      currentUser.displayName||
-      currentUser.email||
-      "مستخدم";
+    const name=currentProfile.displayName||currentUser.displayName||currentUser.email||"مستخدم";
 
     await addDoc(collection(db,"posts"),{
       authorId:currentUser.uid,
@@ -624,23 +452,18 @@ document.getElementById("publishButton").addEventListener("click",async()=>{
 
   }catch(error){
     console.error(error);
-    message.textContent="تعذر النشر: "+error.message;
+    message.textContent="تعذر النشر: "+error.code+" - "+error.message;
   }finally{
     button.disabled=false;
     button.textContent="نشر المنشور";
   }
 });
 
-/* تحميل المنشورات */
 function listenToPosts(){
   const feed=document.getElementById("postsFeed");
+  const postsQuery=query(collection(db,"posts"),orderBy("createdAt","desc"));
 
-  const postsQuery=query(
-    collection(db,"posts"),
-    orderBy("createdAt","desc")
-  );
-
-  if(stopPosts) stopPosts();
+  if(stopPosts)stopPosts();
 
   stopPosts=onSnapshot(postsQuery,snapshot=>{
     feed.innerHTML="";
@@ -651,16 +474,14 @@ function listenToPosts(){
     }
 
     snapshot.forEach(postDoc=>{
-      const post=postDoc.data();
-      feed.appendChild(createPostCard(postDoc.id,post));
+      feed.appendChild(createPostCard(postDoc.id,postDoc.data()));
     });
   },error=>{
-    console.error(error);
-    feed.innerHTML='<div class="card empty">تعذر تحميل المنشورات. تحقق من اتصالك وقواعد Firebase.</div>';
+    console.error("Posts loading error:",error);
+    feed.innerHTML='<div class="card empty">تعذر تحميل المنشورات: '+safe(error.message)+'</div>';
   });
 }
 
-/* إنشاء بطاقة المنشور */
 function createPostCard(id,post){
   const card=document.createElement("article");
   card.className="card";
@@ -676,19 +497,14 @@ function createPostCard(id,post){
         <div class="post-role">${role}</div>
       </div>
     </div>
-
     <div class="post-content">${safe(post.content||"")}</div>
-
     ${post.imageURL?`<img class="post-image" src="${safe(post.imageURL)}" alt="صورة المنشور">`:""}
-
     <div class="post-actions">
       <button class="action-btn like-btn">إعجاب</button>
       <button class="action-btn dislike-btn">عدم إعجاب</button>
       <button class="action-btn comment-toggle">تعليق</button>
     </div>
-
     <div class="comments"></div>
-
     <form class="comment-form">
       <input type="text" placeholder="اكتب تعليقاً..." maxlength="500">
       <button type="submit">إرسال</button>
@@ -699,7 +515,6 @@ function createPostCard(id,post){
   const dislikeBtn=card.querySelector(".dislike-btn");
   const commentBox=card.querySelector(".comments");
   const commentForm=card.querySelector(".comment-form");
-
   const reactionRef=doc(db,"posts",id,"reactions",currentUser.uid);
 
   async function react(type){
@@ -709,15 +524,13 @@ function createPostCard(id,post){
       if(snap.exists()&&snap.data().type===type){
         await deleteDoc(reactionRef);
       }else{
-        await setDoc(reactionRef,{
-          type:type,
-          userId:currentUser.uid
-        });
+        await setDoc(reactionRef,{type:type,userId:currentUser.uid});
       }
+
       await loadReactionButtons();
     }catch(error){
       console.error(error);
-      alert("تعذر تسجيل التفاعل.");
+      alert("تعذر تسجيل التفاعل: "+error.message);
     }
   }
 
@@ -728,8 +541,8 @@ function createPostCard(id,post){
       dislikeBtn.classList.remove("selected");
 
       if(snap.exists()){
-        if(snap.data().type==="like") likeBtn.classList.add("selected");
-        if(snap.data().type==="dislike") dislikeBtn.classList.add("selected");
+        if(snap.data().type==="like")likeBtn.classList.add("selected");
+        if(snap.data().type==="dislike")dislikeBtn.classList.add("selected");
       }
     }catch(error){console.error(error)}
   }
@@ -743,10 +556,8 @@ function createPostCard(id,post){
 
   commentForm.addEventListener("submit",async e=>{
     e.preventDefault();
-
     const input=commentForm.querySelector("input");
     const text=input.value.trim();
-
     if(!text)return;
 
     try{
@@ -759,7 +570,7 @@ function createPostCard(id,post){
       input.value="";
     }catch(error){
       console.error(error);
-      alert("تعذر إرسال التعليق.");
+      alert("تعذر إرسال التعليق: "+error.message);
     }
   });
 
@@ -770,7 +581,6 @@ function createPostCard(id,post){
 
   onSnapshot(commentsQuery,snapshot=>{
     commentBox.innerHTML="";
-
     snapshot.forEach(commentDoc=>{
       const comment=commentDoc.data();
       const item=document.createElement("div");
@@ -778,22 +588,17 @@ function createPostCard(id,post){
       item.innerHTML=`<b>${safe(comment.authorName||"مستخدم")}</b><br>${safe(comment.text)}`;
       commentBox.appendChild(item);
     });
-  },error=>console.error(error));
+  },error=>console.error("Comments error:",error));
 
   loadReactionButtons();
-
   return card;
 }
 
-/* تحميل منشوراتي */
 function loadMyPosts(){
   const box=document.getElementById("myPosts");
   box.innerHTML='<div class="empty">جارٍ تحميل منشوراتك...</div>';
 
-  const postsQuery=query(
-    collection(db,"posts"),
-    orderBy("createdAt","desc")
-  );
+  const postsQuery=query(collection(db,"posts"),orderBy("createdAt","desc"));
 
   onSnapshot(postsQuery,snapshot=>{
     box.innerHTML="";
@@ -808,23 +613,19 @@ function loadMyPosts(){
       }
     });
 
-    if(!found){
-      box.innerHTML='<div class="card empty">لم تنشر أي منشور بعد.</div>';
-    }
+    if(!found)box.innerHTML='<div class="card empty">لم تنشر أي منشور بعد.</div>';
   },error=>{
-    console.error(error);
-    box.innerHTML='<div class="empty">تعذر تحميل منشوراتك.</div>';
+    console.error("My posts error:",error);
+    box.innerHTML='<div class="empty">تعذر تحميل منشوراتك: '+safe(error.message)+'</div>';
   });
 }
 
-/* تعديل الملف الشخصي */
 document.getElementById("editProfileBtn").addEventListener("click",()=>{
   document.getElementById("editProfileBox").classList.toggle("hidden");
 });
 
 document.getElementById("profileImageInput").addEventListener("change",e=>{
   selectedProfileImage=e.target.files[0];
-
   const preview=document.getElementById("profilePreview");
 
   if(selectedProfileImage){
@@ -836,13 +637,9 @@ document.getElementById("profileImageInput").addEventListener("change",e=>{
 document.getElementById("saveProfileBtn").addEventListener("click",async()=>{
   const message=document.getElementById("profileMessage");
   const button=document.getElementById("saveProfileBtn");
-
   const name=document.getElementById("newName").value.trim();
 
-  if(!name){
-    message.textContent="اكتب اسمك أولاً.";
-    return;
-  }
+  if(!name){message.textContent="اكتب اسمك أولاً.";return;}
 
   button.disabled=true;
   message.textContent="جارٍ الحفظ...";
@@ -878,14 +675,13 @@ document.getElementById("saveProfileBtn").addEventListener("click",async()=>{
     selectedProfileImage=null;
 
   }catch(error){
-    console.error(error);
-    message.textContent="تعذر الحفظ: "+error.message;
+    console.error("Profile update error:",error);
+    message.textContent="تعذر الحفظ: "+error.code+" - "+error.message;
   }finally{
     button.disabled=false;
   }
 });
 
-/* الإعدادات */
 document.getElementById("settingsProfile").addEventListener("click",()=>{
   showPage("profilePage");
   document.getElementById("editProfileBox").classList.remove("hidden");
@@ -896,7 +692,7 @@ async function logout(){
     await signOut(auth);
     window.location.href="index.html";
   }catch(error){
-    alert("تعذر تسجيل الخروج.");
+    alert("تعذر تسجيل الخروج: "+error.message);
     console.error(error);
   }
 }
