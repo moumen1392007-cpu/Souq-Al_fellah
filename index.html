@@ -1,342 +1,818 @@
-<!DOCTYPE html><html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سوق الفلاح | من أرض الجزائر إلى بيتك</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>
-*{box-sizing:border-box}
-body{
-margin:0;
-font-family:'Cairo',sans-serif;
-background:#f5f8f3;
-color:#263b2c;
-}
-button,a,input,select{font-family:inherit}
-button{cursor:pointer}
+<title>سوق الفلاح</title>
 
-/* شاشة البداية */
-#welcomeScreen{
-min-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-padding:25px;
-background:linear-gradient(145deg,#e6f1df,#f8fbf5);
-}
-.welcome-card{
-width:100%;
-max-width:480px;
-background:white;
-border-radius:28px;
-padding:42px 28px;
-text-align:center;
-box-shadow:0 15px 50px #244c2b16;
-}
-.logo-icon{
-width:85px;height:85px;
-margin:auto auto 18px;
-border-radius:25px;
-background:#e9f4e5;
-display:flex;align-items:center;justify-content:center;
-font-size:45px;
-}
-.logo{
-font-size:34px;
-font-weight:800;
-color:#28633b;
-margin:0;
-}
-.logo span{color:#82a94d}
-.slogan{
-color:#829083;
-margin:8px 0 25px;
-font-size:15px;
-}
-.welcome-title{
-font-size:23px;
-line-height:1.7;
-margin:15px 0;
-}
-.welcome-description{
-color:#849087;
-font-size:14px;
-line-height:2;
-margin-bottom:30px;
-}
-.welcome-btn{
-display:block;
-width:100%;
-padding:15px;
-border-radius:13px;
-font-size:16px;
-font-weight:700;
-text-decoration:none;
-margin-top:13px;
-border:0;
-}
-.register-btn{
-background:#287443;
-color:white;
-}
-.login-btn{
-background:white;
-color:#287443;
-border:1px solid #287443;
-}
-.welcome-footer{
-margin-top:30px;
-color:#a1aaa0;
-font-size:12px;
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-/* واجهة المستخدم */
-#marketScreen{display:none}
-.header{
-background:white;
-padding:14px 5%;
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:15px;
-box-shadow:0 2px 12px #00000009;
-position:sticky;
-top:0;
-z-index:10;
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f6f3;
+    color: #26352b;
+    padding-bottom: 85px;
 }
-.header-logo{
-font-size:24px;
-font-weight:800;
-color:#28633b;
+
+header {
+    background: #16834a;
+    color: white;
+    padding: 17px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
-.header-logo span{color:#83a94e}
-.header-actions{
-display:flex;
-align-items:center;
-gap:10px;
+
+header h2 {
+    font-size: 21px;
 }
-.user-name{font-size:13px;color:#68776b}
-.logout-btn{
-border:0;
-background:#edf5e9;
-color:#287443;
-padding:9px 14px;
-border-radius:10px;
-font-weight:bold;
+
+header button {
+    background: white;
+    color: #16834a;
+    border: none;
+    padding: 9px 13px;
+    border-radius: 9px;
 }
-.hero{
-margin:25px auto;
-width:90%;
-max-width:1200px;
-padding:40px 25px;
-border-radius:22px;
-background:linear-gradient(120deg,#235c35,#4d8b4b);
-color:white;
+
+.welcome {
+    padding: 35px 20px;
+    text-align: center;
+    background: white;
+    margin: 15px;
+    border-radius: 15px;
 }
-.hero h1{font-size:29px;margin:0 0 10px}
-.hero p{line-height:2;margin:0;color:#e0eddf}
-.content{
-width:90%;
-max-width:1200px;
-margin:35px auto;
+
+.welcome h2 {
+    color: #16834a;
+    margin-bottom: 12px;
 }
-.section-title{font-size:23px;margin-bottom:8px}
-.section-subtitle{color:#879187;font-size:14px}
-.search-box{
-display:flex;
-gap:10px;
-margin:25px 0;
-flex-wrap:wrap;
+
+.welcome button {
+    background: #16834a;
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 9px;
+    margin: 10px 5px;
+    cursor: pointer;
 }
-.search-box input,.search-box select{
-flex:1;
-min-width:150px;
-padding:14px;
-border:1px solid #dce7dc;
-border-radius:12px;
-background:white;
-outline:none;
-font-size:14px;
+
+.page {
+    display: none;
+    padding: 15px;
 }
-.search-box button{
-border:0;
-background:#287443;
-color:white;
-border-radius:12px;
-padding:12px 25px;
-font-weight:bold;
+
+.page.active {
+    display: block;
 }
-.categories{
-display:flex;
-gap:12px;
-overflow-x:auto;
-padding:10px 0 20px;
+
+.page-title {
+    font-size: 21px;
+    margin-bottom: 17px;
+    color: #16834a;
 }
-.category-btn{
-border:1px solid #dce8d9;
-background:white;
-color:#426348;
-padding:12px 20px;
-border-radius:30px;
-white-space:nowrap;
-font-weight:bold;
+
+.card {
+    background: white;
+    border-radius: 14px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px #0000000b;
 }
-.category-btn.active{
-background:#287443;
-color:white;
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
-#statusMessage{
-text-align:center;
-color:#849087;
-padding:20px;
+
+.avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #d9f0e1;
+    color: #16834a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
 }
-.products-grid{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
-gap:20px;
+
+.role-label {
+    font-size: 11px;
+    color: #16834a;
+    margin-top: 4px;
 }
-.product-card{
-background:white;
-border-radius:16px;
-overflow:hidden;
-box-shadow:0 5px 20px #00000008;
+
+.post-content {
+    margin: 15px 0;
+    line-height: 1.7;
+    white-space: pre-wrap;
 }
-.product-card img{
-width:100%;
-height:160px;
-object-fit:cover;
+
+.post-image {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
 }
-.product-info{padding:15px}
-.product-info h3{margin:0 0 10px}
-.product-price{color:#287443;font-weight:bold}
-.product-location{font-size:13px;color:#89948a}
-.empty-message{text-align:center;color:#89948a}
-.footer{
-text-align:center;
-padding:25px;
-color:#89948a;
-font-size:13px;
+
+.post-actions {
+    display: flex;
+    justify-content: space-around;
+    border-top: 1px solid #eee;
+    padding-top: 12px;
+    margin-top: 12px;
 }
-@media(max-width:600px){
-.welcome-card{padding:32px 20px}
-.logo{font-size:29px}
-.header{padding:12px 4%}
-.header-logo{font-size:20px}
-.user-name{display:none}
-.hero{padding:30px 20px}
-.hero h1{font-size:23px}
-.search-box{flex-direction:column}
-.search-box input,.search-box select,.search-box button{width:100%}
-.products-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.product-card img{height:125px}
+
+.post-actions button {
+    border: none;
+    background: none;
+    font-size: 14px;
+    color: #555;
+    cursor: pointer;
 }
-</style></head><body><!-- واجهة الزائر --><section id="welcomeScreen">
-<div class="welcome-card"><div class="logo-icon">🌿</div><h1 class="logo">سوق <span>الفلاح</span></h1>
-<p class="slogan">من أرض الجزائر إلى بيتك</p><h2 class="welcome-title">مرحباً بك في سوق الفلاح</h2><p class="welcome-description">
-منصتك لاكتشاف المنتجات الفلاحية الجزائرية
-والتواصل مع الفلاحين والبائعين مباشرة.
-</p><a href="register.html" class="welcome-btn register-btn">
-إنشاء حساب جديد
-</a><a href="login.html" class="welcome-btn login-btn">
-تسجيل الدخول
-</a><div class="welcome-footer">
-© 2026 سوق الفلاح — جميع الحقوق محفوظة
-</div></div>
-</section><!-- واجهة المستخدم المسجل --><section id="marketScreen"><header class="header">
-<div class="header-logo">🌿 سوق <span>الفلاح</span></div><div class="header-actions">
-<span class="user-name" id="userName">مرحباً بك</span>
-<button class="logout-btn" id="logoutButton">تسجيل الخروج</button>
+
+.post-actions button.selected {
+    color: #16834a;
+    font-weight: bold;
+}
+
+.comment-area {
+    display: flex;
+    gap: 7px;
+    margin-top: 12px;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 9px;
+    margin: 7px 0;
+    font-family: inherit;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+.primary {
+    background: #16834a;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 9px;
+    width: 100%;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    height: 70px;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -3px 15px #00000012;
+    z-index: 1000;
+}
+
+.nav-item {
+    border: none;
+    background: none;
+    color: #888;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    cursor: pointer;
+    height: 60px;
+    justify-content: center;
+    position: relative;
+    flex: 1;
+}
+
+.nav-icon {
+    font-size: 22px;
+}
+
+.nav-item.active {
+    color: #16834a;
+}
+
+.nav-item.active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: 28px;
+    height: 4px;
+    background: #16834a;
+    border-radius: 5px;
+}
+
+.nav-item.add {
+    color: white;
+}
+
+.nav-item.add .nav-icon {
+    background: #16834a;
+    width: 45px;
+    height: 45px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+.empty {
+    text-align: center;
+    color: #888;
+    padding: 30px 10px;
+}
+
+#statusMessage {
+    text-align: center;
+    padding: 10px;
+    color: #16834a;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.product-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 9px;
+}
+
+.product-card h4 {
+    margin: 8px 0;
+}
+
+.product-card p {
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.comment {
+    background: #f3f6f3;
+    padding: 10px;
+    border-radius: 9px;
+    margin-top: 8px;
+    font-size: 13px;
+}
+
+@media(min-width:700px) {
+    .page {
+        max-width: 700px;
+        margin: auto;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>🌱 سوق الفلاح</h2>
+    <button id="logoutButton">خروج</button>
+</header>
+
+<!-- شاشة الترحيب -->
+<section id="welcomeScreen" class="welcome" style="display:none">
+    <h2>مرحباً بك في سوق الفلاح</h2>
+    <p>منصة تجمع الفلاحين والمشترين</p>
+    <button onclick="location.href='register.html'">إنشاء حساب</button>
+    <button onclick="location.href='login.html'">تسجيل الدخول</button>
+</section>
+
+<div id="marketScreen" style="display:none">
+
+    <!-- الصفحة الرئيسية -->
+    <section id="homePage" class="page active">
+        <h3 class="page-title">🌾 آخر المنشورات</h3>
+
+        <div class="card">
+            <input id="searchInput" placeholder="ابحث عن منتج...">
+            <select id="categoryFilter">
+                <option value="">جميع التصنيفات</option>
+                <option value="خضر">خضر</option>
+                <option value="فواكه">فواكه</option>
+                <option value="حبوب">حبوب</option>
+            </select>
+        </div>
+
+        <div id="statusMessage"></div>
+
+        <h3 style="margin:15px 0">📰 منشورات المجتمع</h3>
+        <div id="postsContainer">
+            <p class="empty">جارٍ تحميل المنشورات...</p>
+        </div>
+
+        <h3 style="margin:20px 0">🛒 المنتجات والأسعار</h3>
+        <div id="productsGrid" class="product-grid"></div>
+    </section>
+
+    <!-- الملف الشخصي -->
+    <section id="profilePage" class="page">
+        <h3 class="page-title">👤 الملف الشخصي</h3>
+        <div class="card">
+            <div class="profile-header">
+                <div class="avatar">👤</div>
+                <div>
+                    <h3 id="profileName">المستخدم</h3>
+                    <p id="profileRole" class="role-label"></p>
+                </div>
+            </div>
+            <hr style="margin:15px 0;border:0;border-top:1px solid #eee">
+            <p id="profileEmail"></p>
+            <button class="primary" onclick="location.href='choose-role.html'">
+                🔄 تغيير نوع الحساب
+            </button>
+        </div>
+    </section>
+
+    <!-- الإشعارات -->
+    <section id="notificationsPage" class="page">
+        <h3 class="page-title">🔔 الإشعارات</h3>
+        <div class="card">
+            <p class="empty">لا توجد إشعارات حالياً.</p>
+        </div>
+    </section>
+
+    <!-- إضافة منشور -->
+    <section id="createPage" class="page">
+        <h3 class="page-title">➕ إنشاء منشور</h3>
+
+        <div class="card">
+            <textarea id="postText" placeholder="ماذا تريد أن تشارك مع المجتمع؟"></textarea>
+
+            <label>إضافة صورة (اختياري)</label>
+            <input type="file" id="postImage" accept="image/*">
+
+            <button class="primary" id="publishPost">
+                نشر المنشور
+            </button>
+
+            <p id="postMessage"></p>
+        </div>
+    </section>
+
+    <!-- الرسائل -->
+    <section id="messagesPage" class="page">
+        <h3 class="page-title">💬 الرسائل</h3>
+        <div class="card">
+            <p class="empty">لا توجد محادثات حالياً.</p>
+        </div>
+    </section>
+
+    <!-- الإعدادات -->
+    <section id="settingsPage" class="page">
+        <h3 class="page-title">⚙️ الإعدادات</h3>
+
+        <div class="card">
+            <button class="primary" onclick="location.href='choose-role.html'">
+                تغيير نوع الحساب
+            </button>
+
+            <button class="primary" id="settingsLogout">
+                تسجيل الخروج
+            </button>
+        </div>
+    </section>
+
 </div>
-</header><section class="hero">
-<h1>من أرض الجزائر إلى بيتك 🌱</h1>
-<p>اكتشف خيرات أرضنا وتواصل مباشرة مع الفلاحين في مختلف الولايات.</p>
-</section><main class="content"><h2 class="section-title">اكتشف المنتجات</h2>
-<p class="section-subtitle">ابحث عن المنتجات الفلاحية التي تحتاجها.</p><div class="search-box">
-<input type="search" id="searchInput" placeholder="ابحث عن خضر، فواكه، أو اسم منتج..."><select id="categoryFilter">
-<option value="">كل التصنيفات</option>
-<option value="خضر">🥬 الخضر</option>
-<option value="فواكه">🍎 الفواكه</option>
-<option value="حبوب">🌾 الحبوب</option>
-<option value="أخرى">📦 منتجات أخرى</option>
-</select><button onclick="filterProducts()">بحث</button>
 
-</div><div class="categories">
-<button class="category-btn active" data-category="">الكل</button>
-<button class="category-btn" data-category="خضر">🥬 الخضر</button>
-<button class="category-btn" data-category="فواكه">🍎 الفواكه</button>
-<button class="category-btn" data-category="حبوب">🌾 الحبوب</button>
-<button class="category-btn" data-category="أخرى">📦 أخرى</button>
-</div><p id="statusMessage">جارٍ تحميل المنتجات...</p><div class="products-grid" id="productsGrid"></div></main><footer class="footer">
-🌿 سوق الفلاح — من أرض الجزائر إلى بيتك
-</footer></section><script type="module">
-import { auth } from "./js/firebase.js";
+<!-- شريط التنقل -->
+<nav class="bottom-nav" id="bottomNav" style="display:none">
+
+    <button class="nav-item active" data-page="profilePage">
+        <span class="nav-icon">👤</span>
+        <span>حسابي</span>
+    </button>
+
+    <button class="nav-item" data-page="notificationsPage">
+        <span class="nav-icon">🔔</span>
+        <span>الإشعارات</span>
+    </button>
+
+    <button class="nav-item add" data-page="createPage">
+        <span class="nav-icon">+</span>
+        <span>نشر</span>
+    </button>
+
+    <button class="nav-item" data-page="messagesPage">
+        <span class="nav-icon">💬</span>
+        <span>الرسائل</span>
+    </button>
+
+    <button class="nav-item" data-page="settingsPage">
+        <span class="nav-icon">⚙️</span>
+        <span>الإعدادات</span>
+    </button>
+
+</nav>
+
+<script type="module">
+import {
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-onAuthStateChanged,
-signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    orderBy,
+    doc,
+    getDoc,
+    setDoc,
+    deleteDoc,
+    serverTimestamp,
+    onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+    ref,
+    uploadBytes,
+    getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+import { auth, db, storage } from "./js/firebase.js";
 
 const welcomeScreen = document.getElementById("welcomeScreen");
 const marketScreen = document.getElementById("marketScreen");
-const userName = document.getElementById("userName");
+const bottomNav = document.getElementById("bottomNav");
 
-let appLoaded = false;
+let currentUser = null;
+let currentUserData = null;
 
-onAuthStateChanged(auth, async (user) => {
+const pages = document.querySelectorAll(".page");
+const navItems = document.querySelectorAll(".nav-item");
 
-if (user) {
+// التنقل بين الأقسام
+navItems.forEach(button => {
+    button.addEventListener("click", () => {
+        const target = button.dataset.page;
 
-welcomeScreen.style.display = "none";
-marketScreen.style.display = "block";
+        pages.forEach(page => page.classList.remove("active"));
+        document.getElementById(target).classList.add("active");
 
-userName.textContent = user.displayName || user.email || "مرحباً بك";
+        navItems.forEach(item => item.classList.remove("active"));
+        button.classList.add("active");
+    });
+});
 
-if (!appLoaded) {
-appLoaded = true;
-await import("./js/app.js");
+// التحقق من تسجيل الدخول
+onAuthStateChanged(auth, async user => {
+    if (!user) {
+        welcomeScreen.style.display = "block";
+        marketScreen.style.display = "none";
+        bottomNav.style.display = "none";
+        return;
+    }
+
+    currentUser = user;
+
+    try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        currentUserData = userDoc.exists() ? userDoc.data() : {};
+
+        welcomeScreen.style.display = "none";
+        marketScreen.style.display = "block";
+        bottomNav.style.display = "flex";
+
+        document.getElementById("profileName").textContent =
+            currentUserData.name || user.displayName || "مستخدم";
+
+        document.getElementById("profileRole").textContent =
+            currentUserData.role === "seller" ? "بائع" : "مشتري";
+
+        document.getElementById("profileEmail").textContent =
+            user.email || "";
+
+        loadPosts();
+        loadProducts();
+
+    } catch (error) {
+        console.error(error);
+        document.getElementById("statusMessage").textContent =
+            "حدث خطأ في تحميل الحساب.";
+    }
+});
+
+// تسجيل الخروج
+async function logout() {
+    await signOut(auth);
+    location.href = "index.html";
 }
 
-} else {
+document.getElementById("logoutButton").onclick = logout;
+document.getElementById("settingsLogout").onclick = logout;
 
-marketScreen.style.display = "none";
-welcomeScreen.style.display = "flex";
+// نشر منشور
+document.getElementById("publishPost").addEventListener("click", async () => {
+    const text = document.getElementById("postText").value.trim();
+    const imageFile = document.getElementById("postImage").files[0];
+    const message = document.getElementById("postMessage");
 
-appLoaded = false;
+    if (!text && !imageFile) {
+        message.textContent = "اكتب شيئاً أو اختر صورة.";
+        return;
+    }
 
+    try {
+        message.textContent = "جارٍ النشر...";
+
+        let imageUrl = "";
+
+        if (imageFile) {
+            if (!imageFile.type.startsWith("image/") ||
+                imageFile.size > 5 * 1024 * 1024) {
+                message.textContent = "الصورة يجب أن تكون أقل من 5 ميغابايت.";
+                return;
+            }
+
+            const imageRef = ref(
+                storage,
+                `posts/${currentUser.uid}/${Date.now()}_${imageFile.name}`
+            );
+
+            await uploadBytes(imageRef, imageFile);
+            imageUrl = await getDownloadURL(imageRef);
+        }
+
+        await addDoc(collection(db, "posts"), {
+            authorId: currentUser.uid,
+            authorName: currentUserData.name ||
+                        currentUser.displayName || "مستخدم",
+            authorRole: currentUserData.role || "buyer",
+            content: text,
+            image: imageUrl,
+            createdAt: serverTimestamp()
+        });
+
+        document.getElementById("postText").value = "";
+        document.getElementById("postImage").value = "";
+        message.textContent = "تم نشر المنشور بنجاح!";
+
+        showPage("homePage");
+
+    } catch (error) {
+        console.error(error);
+        message.textContent = "فشل النشر: " + error.message;
+    }
+});
+
+// تغيير الصفحة
+function showPage(id) {
+    pages.forEach(page => page.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+
+    navItems.forEach(item => {
+        item.classList.toggle("active", item.dataset.page === id);
+    });
 }
 
-});
+// عرض المنشورات
+function loadPosts() {
+    const container = document.getElementById("postsContainer");
 
-document.getElementById("logoutButton").addEventListener("click", async () => {
-try {
-await signOut(auth);
-window.location.href = "index.html";
-} catch (error) {
-alert("تعذر تسجيل الخروج. حاول مرة أخرى.");
-console.error(error);
+    const postsQuery = query(
+        collection(db, "posts"),
+        orderBy("createdAt", "desc")
+    );
+
+    onSnapshot(postsQuery, snapshot => {
+        container.innerHTML = "";
+
+        if (snapshot.empty) {
+            container.innerHTML =
+                '<p class="empty">لا توجد منشورات بعد. كن أول من ينشر!</p>';
+            return;
+        }
+
+        snapshot.forEach(postDoc => {
+            const post = postDoc.data();
+            const postId = postDoc.id;
+
+            const card = document.createElement("div");
+            card.className = "card";
+
+            const profile = document.createElement("div");
+            profile.className = "profile-header";
+
+            const avatar = document.createElement("div");
+            avatar.className = "avatar";
+            avatar.textContent = "👤";
+
+            const info = document.createElement("div");
+
+            const name = document.createElement("strong");
+            name.textContent = post.authorName || "مستخدم";
+
+            const role = document.createElement("p");
+            role.className = "role-label";
+            role.textContent =
+                post.authorRole === "seller" ? "بائع" : "مشتري";
+
+            info.append(name, role);
+            profile.append(avatar, info);
+
+            const content = document.createElement("p");
+            content.className = "post-content";
+            content.textContent = post.content || "";
+
+            card.append(profile, content);
+
+            if (post.image) {
+                const image = document.createElement("img");
+                image.src = post.image;
+                image.className = "post-image";
+                card.append(image);
+            }
+
+            const actions = document.createElement("div");
+            actions.className = "post-actions";
+
+            const like = document.createElement("button");
+            like.textContent = "👍 إعجاب";
+
+            const dislike = document.createElement("button");
+            dislike.textContent = "👎 لم يعجبني";
+
+            const commentButton = document.createElement("button");
+            commentButton.textContent = "💬 تعليق";
+
+            actions.append(like, dislike, commentButton);
+            card.append(actions);
+
+            const comments = document.createElement("div");
+            const commentInput = document.createElement("input");
+            commentInput.placeholder = "اكتب تعليقاً...";
+
+            const sendComment = document.createElement("button");
+            sendComment.className = "primary";
+            sendComment.textContent = "إرسال التعليق";
+
+            const commentsList = document.createElement("div");
+
+            comments.append(commentInput, sendComment, commentsList);
+            comments.style.display = "none";
+            card.append(comments);
+
+            commentButton.onclick = () => {
+                comments.style.display =
+                    comments.style.display === "none" ? "block" : "none";
+            };
+
+            like.onclick = () => react(postId, "like");
+            dislike.onclick = () => react(postId, "dislike");
+
+            sendComment.onclick = async () => {
+                const text = commentInput.value.trim();
+                if (!text) return;
+
+                try {
+                    await addDoc(
+                        collection(db, "posts", postId, "comments"),
+                        {
+                            authorId: currentUser.uid,
+                            authorName: currentUserData.name ||
+                                        currentUser.displayName || "مستخدم",
+                            text,
+                            createdAt: serverTimestamp()
+                        }
+                    );
+
+                    commentInput.value = "";
+                } catch (error) {
+                    alert("تعذر إرسال التعليق: " + error.message);
+                }
+            };
+
+            onSnapshot(
+                collection(db, "posts", postId, "comments"),
+                commentSnapshot => {
+                    commentsList.innerHTML = "";
+
+                    commentSnapshot.forEach(commentDoc => {
+                        const comment = commentDoc.data();
+                        const item = document.createElement("div");
+                        item.className = "comment";
+
+                        const strong = document.createElement("strong");
+                        strong.textContent = comment.authorName || "مستخدم";
+
+                        const text = document.createElement("p");
+                        text.textContent = comment.text;
+
+                        item.append(strong, text);
+                        commentsList.append(item);
+                    });
+                }
+            );
+
+            card.append(document.createElement("hr"));
+            container.append(card);
+        });
+    }, error => {
+        console.error(error);
+        container.innerHTML =
+            '<p class="empty">تعذر تحميل المنشورات.</p>';
+    });
 }
-});
 
-// أزرار التصنيفات السريعة
-document.querySelectorAll(".category-btn").forEach(button => {
+// الإعجاب وعدم الإعجاب
+async function react(postId, type) {
+    try {
+        const reactionRef = doc(
+            db,
+            "posts",
+            postId,
+            "reactions",
+            currentUser.uid
+        );
 
-button.addEventListener("click", () => {
+        const existing = await getDoc(reactionRef);
 
-document.querySelectorAll(".category-btn").forEach(btn => {
-btn.classList.remove("active");
-});
-
-button.classList.add("active");
-
-document.getElementById("categoryFilter").value =
-button.dataset.category;
-
-if (window.filterProducts) {
-window.filterProducts();
+        if (existing.exists() && existing.data().type === type) {
+            await deleteDoc(reactionRef);
+        } else {
+            await setDoc(reactionRef, {
+                type,
+                userId: currentUser.uid
+            });
+        }
+    } catch (error) {
+        alert("تعذر تسجيل التفاعل: " + error.message);
+    }
 }
 
-});
+// عرض المنتجات
+async function loadProducts() {
+    const grid = document.getElementById("productsGrid");
 
-});
+    try {
+        const snapshot = await getDocs(collection(db, "products"));
+        grid.innerHTML = "";
 
-</script></body>
+        snapshot.forEach(productDoc => {
+            const product = productDoc.data();
+
+            const card = document.createElement("div");
+            card.className = "card product-card";
+
+            if (product.image) {
+                const image = document.createElement("img");
+                image.src = product.image;
+                card.append(image);
+            }
+
+            const title = document.createElement("h4");
+            title.textContent = product.name || "منتج";
+
+            const price = document.createElement("p");
+            price.textContent =
+                `${product.price} دج / ${product.unit || "وحدة"}`;
+
+            const seller = document.createElement("p");
+            seller.textContent =
+                `البائع: ${product.sellerName || "بائع"}`;
+
+            const wilaya = document.createElement("p");
+            wilaya.textContent = product.wilaya || "";
+
+            card.append(title, price, seller, wilaya);
+            grid.append(card);
+        });
+
+    } catch (error) {
+        console.error(error);
+        grid.innerHTML =
+            '<p class="empty">تعذر تحميل المنتجات.</p>';
+    }
+}
+</script>
+
+</body>
 </html>
