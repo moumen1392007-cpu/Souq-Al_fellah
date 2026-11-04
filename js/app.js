@@ -1,147 +1,211 @@
 import { db } from "./firebase.js";
 
 import {
-  collection,
-  getDocs
+    collection,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// عناصر الصفحة
 const productsGrid = document.getElementById("productsGrid");
 const searchInput = document.getElementById("searchInput");
 const categoryFilter = document.getElementById("categoryFilter");
 const statusMessage = document.getElementById("statusMessage");
 
-let products = [];
+// قائمة المنتجات
+let allProducts = [];
 
-const categories = {
-  vegetables: "خضر",
-  fruits: "فواكه",
-  grains: "حبوب",
-  other: "أخرى"
+// توحيد أسماء التصنيفات
+const categoryMap = {
+    "خضر": "vegetables",
+    "الخضر": "vegetables",
+    "vegetables": "vegetables",
+
+    "فواكه": "fruits",
+    "الفواكه": "fruits",
+    "fruits": "fruits",
+
+    "حبوب": "grains",
+    "الحبوب": "grains",
+    "grains": "grains",
+
+    "أخرى": "other",
+    "اخرى": "other",
+    "other": "other"
 };
 
+// أسماء التصنيفات للعرض
+const categoryNames = {
+    vegetables: "خضر",
+    fruits: "فواكه",
+    grains: "حبوب",
+    other: "أخرى"
+};
+
+// توحيد النصوص لتسهيل البحث
+function normalizeText(text) {
+    return String(text || "")
+        .toLowerCase()
+        .trim()
+        .replace(/[أإآ]/g, "ا")
+        .replace(/ة/g, "ه")
+        .replace(/\s+/g, " ");
+}
+
+// تحويل التصنيف إلى صيغة موحدة
+function normalizeCategory(category) {
+    const value = normalizeText(category);
+    return categoryMap[value] || value;
+}
+
+// حماية النصوص عند عرضها في HTML
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => {
+        const entities = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        };
+
+        return entities[char];
+    });
+}
+
+// جلب المنتجات من Firestore
+async function loadProducts() {
+    try {
+        statusMessage.textContent = "جارٍ تحميل المنتجات...";
+
+        const snapshot = await getDocs(collection(db, "products"));
+
+        allProducts = snapshot.docs.map(document => ({
+            id: document.id,
+            ...document.data()
+        }));
+
+        // ترتيب المنتجات من الأحدث إلى الأقدم
+        allProducts.sort((a, b) => {
+            const dateA = a.createdAt?.toMillis?.() || 0;
+            const dateB = b.createdAt?.toMillis?.() || 0;
+
+            return dateB - dateA;
+        });
+
+        displayProducts(allProducts);
+
+    } catch (error) {
+        console.error("خطأ في تحميل المنتجات:", error);
+
+        statusMessage.textContent =
+            "تعذر تحميل المنتجات. تحقق من اتصالك بالإنترنت.";
+
+        productsGrid.innerHTML = "";
+    }
+}
+
 // عرض المنتجات
-function displayProducts(list) {
-  if (!productsGrid) return;
+function displayProducts(products) {
+    productsGrid.innerHTML = "";
 
-  productsGrid.innerHTML = "";
+    if (products.length === 0) {
+        statusMessage.textContent = "لم يتم العثور على منتجات.";
+        return;
+    }
 
-  if (list.length === 0) {
-    productsGrid.innerHTML =
-      '<p class="empty-message">لا توجد منتجات حالياً. كن أول من يضيف منتجاً!</p>';
-    return;
-  }
+    statusMessage.textContent = `عدد المنتجات: ${products.length}`;
 
-  list.forEach(product => {
-    const card = document.createElement("article");
-    card.className = "product-card";
+    products.forEach(product => {
+        const name = escapeHTML(product.name || "منتج بدون اسم");
+        const price = escapeHTML(product.price ?? "غير محدد");
+        const location = escapeHTML(product.location || "الموقع غير محدد");
+        const description = escapeHTML(product.description || "");
+        const category = normalizeCategory(product.category);
+        const categoryName = escapeHTML(
+            categoryNames[category] || product.category || "أخرى"
+        );
 
-    const image = document.createElement("img");
-    image.src = product.image || "";
-    image.alt = product.name || "منتج فلاحي";
-    image.loading = "lazy";
+        const image = product.imageUrl
+            ? escapeHTML(product.imageUrl)
+            : "";
 
-    const info = document.createElement("div");
-    info.className = "product-info";
+        const card = document.createElement("div");
+        card.className = "product-card";
 
-    const category = document.createElement("span");
-    category.className = "category";
-    category.textContent = categories[product.category] || product.category || "";
+        card.innerHTML = `
+            ${
+                image
+                    ? `<img src="${image}" alt="${name}" class="product-image">`
+                    : `<div class="product-image-placeholder">🌱</div>`
+            }
 
-    const name = document.createElement("h3");
-    name.textContent = product.name || "منتج فلاحي";
+            <div class="product-info">
+                <span class="product-category">${categoryName}</span>
 
-    const description = document.createElement("p");
-    description.textContent = product.description || "";
+                <h3>${name}</h3>
 
-    const price = document.createElement("strong");
-    price.textContent =
-      `${Number(product.price || 0).toLocaleString("ar-DZ")} دج / ${product.unit || "وحدة"}`;
+                <p class="product-price">
+                    ${price} دج
+                </p>
 
-    const location = document.createElement("p");
-    location.textContent = `📍 ${product.wilaya || "غير محدد"}`;
+                <p class="product-location">
+                    📍 ${location}
+                </p>
 
-    info.append(category, name, description, price, location);
-    card.append(image, info);
+                ${
+                    description
+                        ? `<p class="product-description">${description}</p>`
+                        : ""
+                }
+            </div>
+        `;
 
-    productsGrid.appendChild(card);
-  });
+        productsGrid.appendChild(card);
+    });
 }
 
 // البحث والتصفية
 function filterProducts() {
-  const search = searchInput
-    ? searchInput.value.trim().toLowerCase()
-    : "";
+    const searchText = normalizeText(searchInput.value);
 
-  const category = categoryFilter
-    ? categoryFilter.value
-    : "";
-
-  const filtered = products.filter(product => {
-    const matchesName =
-      (product.name || "").toLowerCase().includes(search);
-
-    const matchesCategory =
-      !category ||
-      product.category === category ||
-      categories[product.category] === category;
-
-    return matchesName && matchesCategory;
-  });
-
-  displayProducts(filtered);
-
-  if (statusMessage) {
-    statusMessage.textContent =
-      `عدد المنتجات المعروضة: ${filtered.length}`;
-  }
-}
-
-// جعل الدالة متاحة لزر البحث في HTML
-window.filterProducts = filterProducts;
-
-// تحميل المنتجات من Firestore
-async function loadProducts() {
-  try {
-    if (statusMessage) {
-      statusMessage.textContent = "جارٍ تحميل المنتجات...";
-    }
-
-    const snapshot = await getDocs(
-      collection(db, "products")
+    const selectedCategory = normalizeCategory(
+        categoryFilter.value
     );
 
-    products = snapshot.docs.map(document => ({
-      id: document.id,
-      ...document.data()
-    }));
+    const filteredProducts = allProducts.filter(product => {
 
-    products.sort((a, b) => {
-      const dateA = a.createdAt?.toMillis?.() || 0;
-      const dateB = b.createdAt?.toMillis?.() || 0;
-      return dateB - dateA;
+        const productName = normalizeText(product.name);
+        const productLocation = normalizeText(product.location);
+        const productDescription = normalizeText(product.description);
+
+        const matchesSearch =
+            !searchText ||
+            productName.includes(searchText) ||
+            productLocation.includes(searchText) ||
+            productDescription.includes(searchText);
+
+        const productCategory = normalizeCategory(product.category);
+
+        const matchesCategory =
+            !selectedCategory ||
+            selectedCategory === "all" ||
+            productCategory === selectedCategory;
+
+        return matchesSearch && matchesCategory;
     });
 
-    filterProducts();
-
-  } catch (error) {
-    console.error("Firebase error:", error);
-
-    if (productsGrid) {
-      productsGrid.innerHTML =
-        '<p class="empty-message">تعذر تحميل المنتجات. تحقق من الاتصال بقاعدة البيانات.</p>';
-    }
-  }
+    displayProducts(filteredProducts);
 }
 
-// تشغيل البحث تلقائياً
+// تشغيل البحث عند الكتابة
 if (searchInput) {
-  searchInput.addEventListener("input", filterProducts);
+    searchInput.addEventListener("input", filterProducts);
 }
 
+// تشغيل التصفية عند اختيار التصنيف
 if (categoryFilter) {
-  categoryFilter.addEventListener("change", filterProducts);
+    categoryFilter.addEventListener("change", filterProducts);
 }
 
-// بدء التشغيل
+// تحميل المنتجات عند فتح الصفحة
 loadProducts();
