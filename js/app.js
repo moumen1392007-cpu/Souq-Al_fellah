@@ -7,28 +7,23 @@ import {
 
 import { db } from "./firebase.js";
 
-// عناصر الصفحة
 const productsGrid = document.getElementById("productsGrid");
 const searchInput = document.getElementById("searchInput");
 const categoryFilter = document.getElementById("categoryFilter");
-const wilayaFilter = document.getElementById("wilayaFilter");
 const statusMessage = document.getElementById("statusMessage");
 
 let products = [];
 
-// توحيد النصوص العربية
-function normalizeText(text) {
+function normalize(text) {
     return String(text || "")
         .toLowerCase()
         .trim()
         .replace(/[أإآ]/g, "ا")
-        .replace(/ة/g, "ه")
-        .replace(/\s+/g, " ");
+        .replace(/ة/g, "ه");
 }
 
-// توحيد التصنيفات
 function normalizeCategory(category) {
-    const value = normalizeText(category);
+    const value = normalize(category);
 
     const categories = {
         "خضر": "vegetables",
@@ -47,66 +42,42 @@ function normalizeCategory(category) {
     return categories[value] || value;
 }
 
-// جلب المنتجات من Firebase
 async function loadProducts() {
-    if (!productsGrid) return;
-
     productsGrid.innerHTML =
-        '<p class="empty-message">جارٍ تحميل المنتجات...</p>';
+        '<p class="empty-message">جارٍ تحميل الأسعار...</p>';
 
     try {
-        const productsQuery = query(
-            collection(db, "products"),
-            orderBy("createdAt", "desc")
-        );
+        let snapshot;
 
-        const snapshot = await getDocs(productsQuery);
+        try {
+            snapshot = await getDocs(
+                query(collection(db, "products"), orderBy("createdAt", "desc"))
+            );
+        } catch (error) {
+            snapshot = await getDocs(collection(db, "products"));
+        }
 
-        products = snapshot.docs.map(document => ({
-            id: document.id,
-            ...document.data()
+        products = snapshot.docs.map(item => ({
+            id: item.id,
+            ...item.data()
         }));
 
         displayProducts(products);
 
-        if (statusMessage) {
-            statusMessage.textContent =
-                `عدد المنتجات: ${products.length}`;
-        }
-
     } catch (error) {
-        console.error("Firebase error:", error);
+        console.error(error);
 
-        try {
-            const snapshot = await getDocs(
-                collection(db, "products")
-            );
-
-            products = snapshot.docs.map(document => ({
-                id: document.id,
-                ...document.data()
-            }));
-
-            displayProducts(products);
-
-        } catch (secondError) {
-            console.error(secondError);
-
-            productsGrid.innerHTML =
-                '<p class="empty-message">تعذر تحميل المنتجات. تحقق من الاتصال.</p>';
-        }
+        productsGrid.innerHTML =
+            '<p class="empty-message">تعذر تحميل الأسعار. حاول مجدداً.</p>';
     }
 }
 
-// عرض المنتجات
 function displayProducts(list) {
-    if (!productsGrid) return;
-
     productsGrid.innerHTML = "";
 
-    if (!list.length) {
+    if (list.length === 0) {
         productsGrid.innerHTML =
-            '<p class="empty-message">لا توجد منتجات حالياً.</p>';
+            '<p class="empty-message">لا توجد أسعار منشورة حالياً.</p>';
         return;
     }
 
@@ -115,158 +86,69 @@ function displayProducts(list) {
         card.className = "product-card";
 
         const image = document.createElement("img");
-
         image.src = product.image || product.imageUrl ||
-            "https://placehold.co/600x400?text=Souq+Alfellah";
-
+            "https://placehold.co/600x400?text=Product";
         image.alt = product.name || "منتج";
         image.loading = "lazy";
 
-        image.onerror = function () {
-            this.src = "https://placehold.co/600x400?text=No+Image";
+        image.onerror = () => {
+            image.src = "https://placehold.co/600x400?text=No+Image";
         };
 
         const info = document.createElement("div");
         info.className = "product-info";
 
         const name = document.createElement("h3");
-        name.textContent = product.name || "منتج بدون اسم";
+        name.textContent = product.name || "منتج";
 
         const price = document.createElement("p");
         price.className = "product-price";
-
-        const priceValue = Number(product.price) || 0;
-        const unit = product.unit || "كغ";
-
         price.textContent =
-            `${priceValue.toLocaleString("ar-DZ")} دج / ${unit}`;
+            `${Number(product.price || 0).toLocaleString("ar-DZ")} دج / ${product.unit || "كغ"}`;
 
         const location = document.createElement("p");
         location.className = "product-location";
+        location.textContent = "📍 " + (product.wilaya || "ولاية غير محددة");
 
-        location.textContent =
-            "📍 " + (product.wilaya || "غير محددة");
+        const seller = document.createElement("p");
+        seller.className = "product-location";
+        seller.textContent = "🌾 " + (product.sellerName || "بائع");
 
-        info.append(name, price, location);
+        info.append(name, price, location, seller);
         card.append(image, info);
-
         productsGrid.appendChild(card);
     });
-}
-
-// البحث والتصفية
-function filterProducts() {
-    const search = normalizeText(
-        searchInput?.value || ""
-    );
-
-    const selectedCategory = normalizeCategory(
-        categoryFilter?.value || ""
-    );
-
-    const selectedWilaya = wilayaFilter?.value || "";
-
-    const filtered = products.filter(product => {
-        const name = normalizeText(product.name);
-        const category = normalizeCategory(product.category);
-        const wilaya = normalizeText(product.wilaya);
-
-        const matchesSearch =
-            !search ||
-            name.includes(search) ||
-            category.includes(search) ||
-            wilaya.includes(search);
-
-        const matchesCategory =
-            !selectedCategory ||
-            selectedCategory === "all" ||
-            category === selectedCategory;
-
-        const matchesWilaya =
-            !selectedWilaya ||
-            product.wilaya === selectedWilaya;
-
-        return matchesSearch &&
-            matchesCategory &&
-            matchesWilaya;
-    });
-
-    displayProducts(filtered);
 
     if (statusMessage) {
-        statusMessage.textContent =
-            `عدد المنتجات المعروضة: ${filtered.length}`;
+        statusMessage.textContent = `عدد الأسعار المنشورة: ${list.length}`;
     }
 }
 
-// ربط البحث
-if (searchInput) {
-    searchInput.addEventListener("input", filterProducts);
-}
+function filterProducts() {
+    const search = normalize(searchInput?.value || "");
+    const category = normalizeCategory(categoryFilter?.value || "");
 
-// ربط التصنيفات
-if (categoryFilter) {
-    categoryFilter.addEventListener("change", filterProducts);
-}
+    const filtered = products.filter(product => {
+        const name = normalize(product.name);
+        const productCategory = normalizeCategory(product.category);
+        const wilaya = normalize(product.wilaya);
 
-// ربط الولايات
-if (wilayaFilter) {
-    wilayaFilter.addEventListener("change", filterProducts);
-}
-
-// زر البحث
-const filterButton = document.querySelector(".search-box button");
-
-if (filterButton) {
-    filterButton.addEventListener("click", filterProducts);
-}
-
-// أزرار التصنيفات
-document.querySelectorAll(".category-btn").forEach(button => {
-    button.addEventListener("click", () => {
-        const category = button.dataset.category;
-
-        if (categoryFilter) {
-            categoryFilter.value = category;
-        }
-
-        filterProducts();
-    });
-});
-
-// زر تغيير نوع الحساب
-function createRoleButton() {
-    const roleButton = document.createElement("button");
-
-    roleButton.textContent = "🔄 تغيير نوع الحساب";
-
-    roleButton.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 15px;
-        z-index: 9999;
-        padding: 13px 18px;
-        border: none;
-        border-radius: 12px;
-        background: #246b42;
-        color: white;
-        font-size: 14px;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 4px 12px #0002;
-    `;
-
-    roleButton.addEventListener("click", () => {
-        window.location.href = "choose-role.html";
+        return (
+            (!search ||
+                name.includes(search) ||
+                productCategory.includes(search) ||
+                wilaya.includes(search)) &&
+            (!category || category === "all" ||
+                productCategory === category)
+        );
     });
 
-    document.body.appendChild(roleButton);
+    displayProducts(filtered);
 }
 
-createRoleButton();
+searchInput?.addEventListener("input", filterProducts);
+categoryFilter?.addEventListener("change", filterProducts);
 
-// إتاحة البحث لملف HTML
 window.filterProducts = filterProducts;
 
-// تحميل المنتجات
 loadProducts();
