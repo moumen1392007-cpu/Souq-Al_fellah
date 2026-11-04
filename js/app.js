@@ -1,54 +1,11 @@
-// المنتجات التجريبية
-const products = [
-    {
-        name: "طماطم طازجة",
-        category: "vegetables",
-        price: 120,
-        unit: "كغ",
-        wilaya: "الجزائر",
-        image: "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=600"
-    },
-    {
-        name: "بطاطا ممتازة",
-        category: "vegetables",
-        price: 85,
-        unit: "كغ",
-        wilaya: "تيبازة",
-        image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=600"
-    },
-    {
-        name: "تفاح أحمر",
-        category: "fruits",
-        price: 250,
-        unit: "كغ",
-        wilaya: "البليدة",
-        image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=600"
-    },
-    {
-        name: "برتقال",
-        category: "fruits",
-        price: 180,
-        unit: "كغ",
-        wilaya: "مستغانم",
-        image: "https://images.unsplash.com/photo-1547514701-42782101795e?w=600"
-    },
-    {
-        name: "فلفل أخضر",
-        category: "vegetables",
-        price: 150,
-        unit: "كغ",
-        wilaya: "معسكر",
-        image: "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=600"
-    },
-    {
-        name: "عسل طبيعي",
-        category: "other",
-        price: 1800,
-        unit: "لتر",
-        wilaya: "باتنة",
-        image: "https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=600"
-    }
-];
+import {
+    collection,
+    getDocs,
+    query,
+    orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import { db } from "./firebase.js";
 
 // عناصر الصفحة
 const productsGrid = document.getElementById("productsGrid");
@@ -56,6 +13,8 @@ const searchInput = document.getElementById("searchInput");
 const categoryFilter = document.getElementById("categoryFilter");
 const wilayaFilter = document.getElementById("wilayaFilter");
 const statusMessage = document.getElementById("statusMessage");
+
+let products = [];
 
 // توحيد النصوص العربية
 function normalizeText(text) {
@@ -67,7 +26,7 @@ function normalizeText(text) {
         .replace(/\s+/g, " ");
 }
 
-// ترجمة التصنيفات
+// توحيد التصنيفات
 function normalizeCategory(category) {
     const value = normalizeText(category);
 
@@ -75,60 +34,119 @@ function normalizeCategory(category) {
         "خضر": "vegetables",
         "الخضر": "vegetables",
         "vegetables": "vegetables",
-
         "فواكه": "fruits",
         "الفواكه": "fruits",
         "fruits": "fruits",
-
         "حبوب": "grains",
         "الحبوب": "grains",
         "grains": "grains",
-
         "اخرى": "other",
-        "أخرى": "other",
         "other": "other"
     };
 
     return categories[value] || value;
 }
 
+// جلب المنتجات من Firebase
+async function loadProducts() {
+    if (!productsGrid) return;
+
+    productsGrid.innerHTML =
+        '<p class="empty-message">جارٍ تحميل المنتجات...</p>';
+
+    try {
+        const productsQuery = query(
+            collection(db, "products"),
+            orderBy("createdAt", "desc")
+        );
+
+        const snapshot = await getDocs(productsQuery);
+
+        products = snapshot.docs.map(document => ({
+            id: document.id,
+            ...document.data()
+        }));
+
+        displayProducts(products);
+
+        if (statusMessage) {
+            statusMessage.textContent =
+                `عدد المنتجات: ${products.length}`;
+        }
+
+    } catch (error) {
+        console.error("Firebase error:", error);
+
+        // محاولة ثانية دون ترتيب إذا لم يوجد createdAt
+        try {
+            const snapshot = await getDocs(
+                collection(db, "products")
+            );
+
+            products = snapshot.docs.map(document => ({
+                id: document.id,
+                ...document.data()
+            }));
+
+            displayProducts(products);
+
+        } catch (secondError) {
+            console.error(secondError);
+
+            productsGrid.innerHTML =
+                '<p class="empty-message">تعذر تحميل المنتجات. تحقق من الاتصال بقاعدة البيانات.</p>';
+        }
+    }
+}
+
 // عرض المنتجات
 function displayProducts(list) {
-
     if (!productsGrid) return;
 
     productsGrid.innerHTML = "";
 
-    if (list.length === 0) {
+    if (!list.length) {
         productsGrid.innerHTML =
-            '<p class="empty-message">لم يتم العثور على منتجات مطابقة للبحث.</p>';
+            '<p class="empty-message">لا توجد منتجات حالياً.</p>';
         return;
     }
 
     list.forEach(product => {
-
         const card = document.createElement("article");
         card.className = "product-card";
 
         const image = document.createElement("img");
-        image.src = product.image;
-        image.alt = product.name;
+
+        image.src = product.image || product.imageUrl ||
+            "https://placehold.co/600x400?text=Souq+Alfellah";
+
+        image.alt = product.name || "منتج";
         image.loading = "lazy";
+
+        image.onerror = function () {
+            this.src = "https://placehold.co/600x400?text=No+Image";
+        };
 
         const info = document.createElement("div");
         info.className = "product-info";
 
         const name = document.createElement("h3");
-        name.textContent = product.name;
+        name.textContent = product.name || "منتج بدون اسم";
 
         const price = document.createElement("p");
         price.className = "product-price";
+
+        const priceValue = Number(product.price) || 0;
+        const unit = product.unit || "كغ";
+
         price.textContent =
-            `${product.price.toLocaleString("ar-DZ")} دج / ${product.unit}`;
+            `${priceValue.toLocaleString("ar-DZ")} دج / ${unit}`;
 
         const location = document.createElement("p");
         location.className = "product-location";
-        location.textContent = "📍 " + product.wilaya;
+
+        location.textContent =
+            "📍 " + (product.wilaya || "غير محددة");
 
         info.append(name, price, location);
         card.append(image, info);
@@ -139,41 +157,39 @@ function displayProducts(list) {
 
 // البحث والتصفية
 function filterProducts() {
-
     const search = normalizeText(
-        searchInput ? searchInput.value : ""
+        searchInput?.value || ""
     );
 
     const selectedCategory = normalizeCategory(
-        categoryFilter ? categoryFilter.value : ""
+        categoryFilter?.value || ""
     );
 
-    const selectedWilaya = wilayaFilter
-        ? wilayaFilter.value
-        : "";
+    const selectedWilaya = wilayaFilter?.value || "";
 
     const filtered = products.filter(product => {
-
-        const productName = normalizeText(product.name);
-        const productCategory = normalizeCategory(product.category);
-        const productWilaya = normalizeText(product.wilaya);
+        const name = normalizeText(product.name);
+        const category = normalizeCategory(product.category);
+        const wilaya = normalizeText(product.wilaya);
 
         const matchesSearch =
             !search ||
-            productName.includes(search) ||
-            productCategory.includes(search) ||
-            productWilaya.includes(search);
+            name.includes(search) ||
+            category.includes(search) ||
+            wilaya.includes(search);
 
         const matchesCategory =
             !selectedCategory ||
             selectedCategory === "all" ||
-            productCategory === selectedCategory;
+            category === selectedCategory;
 
         const matchesWilaya =
             !selectedWilaya ||
             product.wilaya === selectedWilaya;
 
-        return matchesSearch && matchesCategory && matchesWilaya;
+        return matchesSearch &&
+            matchesCategory &&
+            matchesWilaya;
     });
 
     displayProducts(filtered);
@@ -206,8 +222,21 @@ if (filterButton) {
     filterButton.addEventListener("click", filterProducts);
 }
 
-// إتاحة الدالة للزر الموجود في HTML
+// أزرار التصنيفات
+document.querySelectorAll(".category-btn").forEach(button => {
+    button.addEventListener("click", () => {
+        const category = button.dataset.category;
+
+        if (categoryFilter) {
+            categoryFilter.value = category;
+        }
+
+        filterProducts();
+    });
+});
+
+// إتاحة البحث لملف HTML
 window.filterProducts = filterProducts;
 
-// عرض المنتجات عند فتح الصفحة
-displayProducts(products);
+// تحميل المنتجات
+loadProducts();
