@@ -77,7 +77,6 @@ async function loadProducts() {
     } catch (error) {
         console.error("Firebase error:", error);
 
-        // محاولة ثانية دون ترتيب إذا لم يوجد createdAt
         try {
             const snapshot = await getDocs(
                 collection(db, "products")
@@ -94,7 +93,7 @@ async function loadProducts() {
             console.error(secondError);
 
             productsGrid.innerHTML =
-                '<p class="empty-message">تعذر تحميل المنتجات. تحقق من الاتصال بقاعدة البيانات.</p>';
+                '<p class="empty-message">تعذر تحميل المنتجات. تحقق من الاتصال.</p>';
         }
     }
 }
@@ -234,6 +233,37 @@ document.querySelectorAll(".category-btn").forEach(button => {
         filterProducts();
     });
 });
+
+// زر تغيير نوع الحساب
+function createRoleButton() {
+    const roleButton = document.createElement("button");
+
+    roleButton.textContent = "🔄 تغيير نوع الحساب";
+
+    roleButton.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 15px;
+        z-index: 9999;
+        padding: 13px 18px;
+        border: none;
+        border-radius: 12px;
+        background: #246b42;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 12px #0002;
+    `;
+
+    roleButton.addEventListener("click", () => {
+        window.location.href = "choose-role.html";
+    });
+
+    document.body.appendChild(roleButton);
+}
+
+createRoleButton();
 
 // إتاحة البحث لملف HTML
 window.filterProducts = filterProducts;
