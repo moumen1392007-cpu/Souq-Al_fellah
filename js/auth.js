@@ -30,13 +30,13 @@ if (!authMessage) return;
 
 authMessage.textContent = message;
 authMessage.style.display = "block";
-authMessage.style.color = isError ? "#c0392b" : "#287348";
+authMessage.style.color = isError ? "#c0392b" : "#287443";
 
 }
 
 function checkFirebase() {
 if (!firebaseReady || !auth || !db) {
-showMessage("يجب إعداد Firebase أولاً حتى تعمل الحسابات.", true);
+showMessage("تعذر الاتصال بقاعدة البيانات. حاول لاحقاً.", true);
 return false;
 }
 
@@ -44,29 +44,35 @@ return true;
 
 }
 
-// حفظ معلومات المستخدم في قاعدة البيانات
-async function saveUser(user, name, role, wilaya) {
+// حفظ معلومات المستخدم
+async function saveUser(user, name = "", role = "buyer", wilaya = "") {
 const userRef = doc(db, "users", user.uid);
-const userSnapshot = await getDoc(userRef);
+const snapshot = await getDoc(userRef);
 
-if (!userSnapshot.exists()) {
-    await setDoc(userRef, {
+if (!snapshot.exists()) {
+    const userData = {
         uid: user.uid,
         name: name || user.displayName || "مستخدم",
-        email: user.email,
-        role: role || "buyer",
-        wilaya: wilaya || "",
+        email: user.email || "",
+        role: role,
+        wilaya: wilaya,
         createdAt: serverTimestamp()
-    });
+    };
+
+    await setDoc(userRef, userData);
+    return userData;
 }
 
-return userSnapshot.exists()
-    ? userSnapshot.data()
-    : { role: role || "buyer" };
+return snapshot.data();
 
 }
 
-// التسجيل بالبريد الإلكتروني
+// الانتقال إلى واجهة السوق
+function goToMarket() {
+window.location.replace("index.html");
+}
+
+// إنشاء حساب بالبريد الإلكتروني
 if (registerForm) {
 registerForm.addEventListener("submit", async (event) => {
 event.preventDefault();
@@ -79,13 +85,13 @@ event.preventDefault();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
-    if (!name || !email || !password || !role || !wilaya) {
+    if (!name || !role || !wilaya || !email || !password) {
         showMessage("يرجى ملء جميع الحقول.", true);
         return;
     }
 
     if (password.length < 6) {
-        showMessage("كلمة المرور يجب أن تتكون من 6 أحرف على الأقل.", true);
+        showMessage("كلمة المرور يجب أن تكون 6 أحرف على الأقل.", true);
         return;
     }
 
@@ -106,12 +112,10 @@ event.preventDefault();
 
         showMessage("تم إنشاء حسابك بنجاح!");
 
-        setTimeout(() => {
-            window.location.href =
-                role === "seller" ? "dashboard.html" : "index.html";
-        }, 1200);
+        setTimeout(goToMarket, 800);
 
     } catch (error) {
+        console.error(error);
         showMessage(getErrorMessage(error), true);
     }
 });
@@ -128,6 +132,11 @@ event.preventDefault();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
+    if (!email || !password) {
+        showMessage("أدخل البريد الإلكتروني وكلمة المرور.", true);
+        return;
+    }
+
     try {
         showMessage("جارٍ تسجيل الدخول...");
 
@@ -137,64 +146,45 @@ event.preventDefault();
             password
         );
 
-        const userRef = doc(db, "users", result.user.uid);
-        const userSnapshot = await getDoc(userRef);
-
-        if (!userSnapshot.exists()) {
-            showMessage("لم يتم العثور على بيانات الحساب.", true);
-            return;
-        }
-
-        const userData = userSnapshot.data();
+        // التأكد من وجود بيانات المستخدم
+        await saveUser(result.user);
 
         showMessage("تم تسجيل الدخول بنجاح!");
 
-        setTimeout(() => {
-            window.location.href =
-                userData.role === "seller"
-                    ? "dashboard.html"
-                    : "index.html";
-        }, 1000);
+        setTimeout(goToMarket, 800);
 
     } catch (error) {
+        console.error(error);
         showMessage(getErrorMessage(error), true);
     }
 });
 
 }
 
-// الدخول والتسجيل باستخدام Google
+// تسجيل الدخول باستخدام Google
 async function googleSignIn() {
 if (!checkFirebase()) return;
 
 try {
-    showMessage("جارٍ فتح حساب Google...");
+    showMessage("جارٍ الاتصال بحساب Google...");
 
     const provider = new GoogleAuthProvider();
 
     const result = await signInWithPopup(auth, provider);
 
-    const userRef = doc(db, "users", result.user.uid);
-    const userSnapshot = await getDoc(userRef);
-
-    if (!userSnapshot.exists()) {
-        await setDoc(userRef, {
-            uid: result.user.uid,
-            name: result.user.displayName || "مستخدم",
-            email: result.user.email,
-            role: "buyer",
-            wilaya: "",
-            createdAt: serverTimestamp()
-        });
-    }
+    await saveUser(
+        result.user,
+        result.user.displayName || "مستخدم",
+        "buyer",
+        ""
+    );
 
     showMessage("تم تسجيل الدخول بنجاح!");
 
-    setTimeout(() => {
-        window.location.href = "index.html";
-    }, 1000);
+    setTimeout(goToMarket, 800);
 
 } catch (error) {
+    console.error(error);
     showMessage(getErrorMessage(error), true);
 }
 
@@ -208,19 +198,41 @@ if (googleRegister) {
 googleRegister.addEventListener("click", googleSignIn);
 }
 
-// رسائل الأخطاء بالعربية
+// ترجمة رسائل الأخطاء
 function getErrorMessage(error) {
 const messages = {
-"auth/email-already-in-use": "هذا البريد الإلكتروني مستخدم بالفعل.",
-"auth/invalid-email": "البريد الإلكتروني غير صحيح.",
-"auth/weak-password": "كلمة المرور ضعيفة جداً.",
-"auth/user-not-found": "الحساب غير موجود.",
-"auth/wrong-password": "كلمة المرور غير صحيحة.",
-"auth/invalid-credential": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-"auth/popup-closed-by-user": "تم إغلاق نافذة Google.",
-"auth/network-request-failed": "تحقق من اتصال الإنترنت."
+"auth/email-already-in-use":
+"هذا البريد الإلكتروني مستخدم بالفعل.",
+
+    "auth/invalid-email":
+        "البريد الإلكتروني غير صحيح.",
+
+    "auth/weak-password":
+        "كلمة المرور ضعيفة جداً.",
+
+    "auth/user-not-found":
+        "هذا الحساب غير موجود.",
+
+    "auth/wrong-password":
+        "كلمة المرور غير صحيحة.",
+
+    "auth/invalid-credential":
+        "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+
+    "auth/popup-closed-by-user":
+        "تم إغلاق نافذة Google.",
+
+    "auth/popup-blocked":
+        "المتصفح منع نافذة Google. اسمح بالنوافذ المنبثقة.",
+
+    "auth/unauthorized-domain":
+        "عنوان الموقع غير مضاف إلى النطاقات المسموح بها في Firebase.",
+
+    "auth/network-request-failed":
+        "تحقق من اتصال الإنترنت."
 };
 
-return messages[error.code] || "حدث خطأ، يرجى المحاولة مرة أخرى.";
+return messages[error.code] ||
+    "حدث خطأ أثناء العملية. حاول مرة أخرى.";
 
-  }
+}
