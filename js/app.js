@@ -2,10 +2,12 @@ import {
     collection,
     getDocs,
     query,
-    orderBy
+    orderBy,
+    doc,
+    getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import { db } from "./firebase.js";
+import { auth, db } from "./firebase.js";
 
 const productsGrid = document.getElementById("productsGrid");
 const searchInput = document.getElementById("searchInput");
@@ -42,7 +44,61 @@ function normalizeCategory(category) {
     return categories[value] || value;
 }
 
+// إظهار زر نشر الأسعار للبائع فقط
+async function setupSellerButton() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        const userSnapshot = await getDoc(
+            doc(db, "users", user.uid)
+        );
+
+        if (!userSnapshot.exists()) return;
+
+        const userData = userSnapshot.data();
+
+        if (userData.role !== "seller") return;
+
+        const button = document.createElement("button");
+
+        button.textContent = "➕ نشر سعر جديد";
+
+        button.style.cssText = `
+            display: block;
+            width: 90%;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 16px;
+            background: #287443;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px #0002;
+        `;
+
+        button.addEventListener("click", () => {
+            window.location.href = "dashboard.html";
+        });
+
+        const content = document.querySelector(".content");
+
+        if (content) {
+            content.insertBefore(button, content.children[0]);
+        }
+
+    } catch (error) {
+        console.error("Seller check error:", error);
+    }
+}
+
+// جلب الأسعار المنشورة
 async function loadProducts() {
+    if (!productsGrid) return;
+
     productsGrid.innerHTML =
         '<p class="empty-message">جارٍ تحميل الأسعار...</p>';
 
@@ -51,7 +107,10 @@ async function loadProducts() {
 
         try {
             snapshot = await getDocs(
-                query(collection(db, "products"), orderBy("createdAt", "desc"))
+                query(
+                    collection(db, "products"),
+                    orderBy("createdAt", "desc")
+                )
             );
         } catch (error) {
             snapshot = await getDocs(collection(db, "products"));
@@ -72,7 +131,10 @@ async function loadProducts() {
     }
 }
 
+// عرض المنتجات والأسعار
 function displayProducts(list) {
+    if (!productsGrid) return;
+
     productsGrid.innerHTML = "";
 
     if (list.length === 0) {
@@ -86,8 +148,11 @@ function displayProducts(list) {
         card.className = "product-card";
 
         const image = document.createElement("img");
-        image.src = product.image || product.imageUrl ||
+
+        image.src = product.image ||
+            product.imageUrl ||
             "https://placehold.co/600x400?text=Product";
+
         image.alt = product.name || "منتج";
         image.loading = "lazy";
 
@@ -103,30 +168,38 @@ function displayProducts(list) {
 
         const price = document.createElement("p");
         price.className = "product-price";
+
         price.textContent =
             `${Number(product.price || 0).toLocaleString("ar-DZ")} دج / ${product.unit || "كغ"}`;
 
         const location = document.createElement("p");
         location.className = "product-location";
-        location.textContent = "📍 " + (product.wilaya || "ولاية غير محددة");
+        location.textContent =
+            "📍 " + (product.wilaya || "ولاية غير محددة");
 
         const seller = document.createElement("p");
         seller.className = "product-location";
-        seller.textContent = "🌾 " + (product.sellerName || "بائع");
+        seller.textContent =
+            "🌾 " + (product.sellerName || "بائع");
 
         info.append(name, price, location, seller);
         card.append(image, info);
+
         productsGrid.appendChild(card);
     });
 
     if (statusMessage) {
-        statusMessage.textContent = `عدد الأسعار المنشورة: ${list.length}`;
+        statusMessage.textContent =
+            `عدد الأسعار المنشورة: ${list.length}`;
     }
 }
 
+// البحث والتصفية
 function filterProducts() {
     const search = normalize(searchInput?.value || "");
-    const category = normalizeCategory(categoryFilter?.value || "");
+    const category = normalizeCategory(
+        categoryFilter?.value || ""
+    );
 
     const filtered = products.filter(product => {
         const name = normalize(product.name);
@@ -138,7 +211,8 @@ function filterProducts() {
                 name.includes(search) ||
                 productCategory.includes(search) ||
                 wilaya.includes(search)) &&
-            (!category || category === "all" ||
+            (!category ||
+                category === "all" ||
                 productCategory === category)
         );
     });
@@ -151,4 +225,6 @@ categoryFilter?.addEventListener("change", filterProducts);
 
 window.filterProducts = filterProducts;
 
+// تشغيل الوظائف
+setupSellerButton();
 loadProducts();
