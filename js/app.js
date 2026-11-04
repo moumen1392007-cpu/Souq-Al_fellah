@@ -1,73 +1,37 @@
-const products = [
-{
-name: "طماطم طازجة",
-category: "vegetables",
-price: 120,
-unit: "كغ",
-wilaya: "الجزائر",
-image: "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=600"
-},
-{
-name: "بطاطا ممتازة",
-category: "vegetables",
-price: 85,
-unit: "كغ",
-wilaya: "تيبازة",
-image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=600"
-},
-{
-name: "تفاح أحمر",
-category: "fruits",
-price: 250,
-unit: "كغ",
-wilaya: "البليدة",
-image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=600"
-},
-{
-name: "برتقال",
-category: "fruits",
-price: 180,
-unit: "كغ",
-wilaya: "مستغانم",
-image: "https://images.unsplash.com/photo-1547514701-42782101795e?w=600"
-},
-{
-name: "فلفل أخضر",
-category: "vegetables",
-price: 150,
-unit: "كغ",
-wilaya: "معسكر",
-image: "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=600"
-},
-{
-name: "عسل طبيعي",
-category: "other",
-price: 1800,
-unit: "لتر",
-wilaya: "باتنة",
-image: "https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=600"
-}
-];
+import { db } from "./firebase.js";
+
+import {
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const productsGrid = document.getElementById("productsGrid");
 const searchInput = document.getElementById("searchInput");
 const categoryFilter = document.getElementById("categoryFilter");
-const wilayaFilter = document.getElementById("wilayaFilter");
-const filterButton = document.getElementById("filterButton");
 const statusMessage = document.getElementById("statusMessage");
 
+let products = [];
+
+const categories = {
+  vegetables: "خضر",
+  fruits: "فواكه",
+  grains: "حبوب",
+  other: "أخرى"
+};
+
+// عرض المنتجات
 function displayProducts(list) {
-if (!productsGrid) return;
+  if (!productsGrid) return;
 
-productsGrid.innerHTML = "";
+  productsGrid.innerHTML = "";
 
-if (list.length === 0) {
+  if (list.length === 0) {
     productsGrid.innerHTML =
-        '<p class="empty-message">لا توجد منتجات تطابق بحثك حالياً.</p>';
+      '<p class="empty-message">لا توجد منتجات حالياً. كن أول من يضيف منتجاً!</p>';
     return;
-}
+  }
 
-list.forEach(product => {
+  list.forEach(product => {
     const card = document.createElement("article");
     card.className = "product-card";
 
@@ -79,61 +43,105 @@ list.forEach(product => {
     const info = document.createElement("div");
     info.className = "product-info";
 
+    const category = document.createElement("span");
+    category.className = "category";
+    category.textContent = categories[product.category] || product.category || "";
+
     const name = document.createElement("h3");
     name.textContent = product.name || "منتج فلاحي";
 
-    const price = document.createElement("p");
-    price.className = "product-price";
+    const description = document.createElement("p");
+    description.textContent = product.description || "";
+
+    const price = document.createElement("strong");
     price.textContent =
-        `${Number(product.price || 0).toLocaleString("ar-DZ")} دج / ${product.unit || "وحدة"}`;
+      `${Number(product.price || 0).toLocaleString("ar-DZ")} دج / ${product.unit || "وحدة"}`;
 
     const location = document.createElement("p");
-    location.className = "product-location";
     location.textContent = `📍 ${product.wilaya || "غير محدد"}`;
 
-    info.append(name, price, location);
+    info.append(category, name, description, price, location);
     card.append(image, info);
+
     productsGrid.appendChild(card);
-});
-
+  });
 }
 
+// البحث والتصفية
 function filterProducts() {
-const search = searchInput ? searchInput.value.trim().toLowerCase() : "";
-const category = categoryFilter ? categoryFilter.value : "";
-const wilaya = wilayaFilter ? wilayaFilter.value : "";
+  const search = searchInput
+    ? searchInput.value.trim().toLowerCase()
+    : "";
 
-const filtered = products.filter(product => {
-    const matchesName = (product.name || "").toLowerCase().includes(search);
-    const matchesCategory = !category || product.category === category;
-    const matchesWilaya = !wilaya || product.wilaya === wilaya;
+  const category = categoryFilter
+    ? categoryFilter.value
+    : "";
 
-    return matchesName && matchesCategory && matchesWilaya;
-});
+  const filtered = products.filter(product => {
+    const matchesName =
+      (product.name || "").toLowerCase().includes(search);
 
-displayProducts(filtered);
+    const matchesCategory =
+      !category ||
+      product.category === category ||
+      categories[product.category] === category;
 
-if (statusMessage) {
+    return matchesName && matchesCategory;
+  });
+
+  displayProducts(filtered);
+
+  if (statusMessage) {
     statusMessage.textContent =
-        `عدد المنتجات المعروضة: ${filtered.length}`;
+      `عدد المنتجات المعروضة: ${filtered.length}`;
+  }
 }
 
+// جعل الدالة متاحة لزر البحث في HTML
+window.filterProducts = filterProducts;
+
+// تحميل المنتجات من Firestore
+async function loadProducts() {
+  try {
+    if (statusMessage) {
+      statusMessage.textContent = "جارٍ تحميل المنتجات...";
+    }
+
+    const snapshot = await getDocs(
+      collection(db, "products")
+    );
+
+    products = snapshot.docs.map(document => ({
+      id: document.id,
+      ...document.data()
+    }));
+
+    products.sort((a, b) => {
+      const dateA = a.createdAt?.toMillis?.() || 0;
+      const dateB = b.createdAt?.toMillis?.() || 0;
+      return dateB - dateA;
+    });
+
+    filterProducts();
+
+  } catch (error) {
+    console.error("Firebase error:", error);
+
+    if (productsGrid) {
+      productsGrid.innerHTML =
+        '<p class="empty-message">تعذر تحميل المنتجات. تحقق من الاتصال بقاعدة البيانات.</p>';
+    }
+  }
 }
 
-if (filterButton) {
-filterButton.addEventListener("click", filterProducts);
-}
-
+// تشغيل البحث تلقائياً
 if (searchInput) {
-searchInput.addEventListener("input", filterProducts);
+  searchInput.addEventListener("input", filterProducts);
 }
 
 if (categoryFilter) {
-categoryFilter.addEventListener("change", filterProducts);
+  categoryFilter.addEventListener("change", filterProducts);
 }
 
-if (wilayaFilter) {
-wilayaFilter.addEventListener("change", filterProducts);
-}
-
-displayProducts(products);
+// بدء التشغيل
+loadProducts();
