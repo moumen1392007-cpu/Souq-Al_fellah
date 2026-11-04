@@ -1,47 +1,63 @@
-import { db } from "./firebase.js";
-
-import {
-    collection,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// المنتجات التجريبية
+const products = [
+    {
+        name: "طماطم طازجة",
+        category: "vegetables",
+        price: 120,
+        unit: "كغ",
+        wilaya: "الجزائر",
+        image: "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=600"
+    },
+    {
+        name: "بطاطا ممتازة",
+        category: "vegetables",
+        price: 85,
+        unit: "كغ",
+        wilaya: "تيبازة",
+        image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=600"
+    },
+    {
+        name: "تفاح أحمر",
+        category: "fruits",
+        price: 250,
+        unit: "كغ",
+        wilaya: "البليدة",
+        image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=600"
+    },
+    {
+        name: "برتقال",
+        category: "fruits",
+        price: 180,
+        unit: "كغ",
+        wilaya: "مستغانم",
+        image: "https://images.unsplash.com/photo-1547514701-42782101795e?w=600"
+    },
+    {
+        name: "فلفل أخضر",
+        category: "vegetables",
+        price: 150,
+        unit: "كغ",
+        wilaya: "معسكر",
+        image: "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=600"
+    },
+    {
+        name: "عسل طبيعي",
+        category: "other",
+        price: 1800,
+        unit: "لتر",
+        wilaya: "باتنة",
+        image: "https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=600"
+    }
+];
 
 // عناصر الصفحة
 const productsGrid = document.getElementById("productsGrid");
 const searchInput = document.getElementById("searchInput");
 const categoryFilter = document.getElementById("categoryFilter");
+const wilayaFilter = document.getElementById("wilayaFilter");
 const statusMessage = document.getElementById("statusMessage");
 
-// قائمة المنتجات
-let allProducts = [];
-
-// توحيد أسماء التصنيفات
-const categoryMap = {
-    "خضر": "vegetables",
-    "الخضر": "vegetables",
-    "vegetables": "vegetables",
-
-    "فواكه": "fruits",
-    "الفواكه": "fruits",
-    "fruits": "fruits",
-
-    "حبوب": "grains",
-    "الحبوب": "grains",
-    "grains": "grains",
-
-    "أخرى": "other",
-    "اخرى": "other",
-    "other": "other"
-};
-
-// أسماء التصنيفات للعرض
-const categoryNames = {
-    vegetables: "خضر",
-    fruits: "فواكه",
-    grains: "حبوب",
-    other: "أخرى"
-};
-
-// توحيد النصوص لتسهيل البحث
+// توحيد النصوص العربية
 function normalizeText(text) {
     return String(text || "")
         .toLowerCase()
@@ -51,114 +67,71 @@ function normalizeText(text) {
         .replace(/\s+/g, " ");
 }
 
-// تحويل التصنيف إلى صيغة موحدة
+// ترجمة التصنيفات
 function normalizeCategory(category) {
     const value = normalizeText(category);
-    return categoryMap[value] || value;
-}
 
-// حماية النصوص عند عرضها في HTML
-function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, char => {
-        const entities = {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#039;"
-        };
+    const categories = {
+        "خضر": "vegetables",
+        "الخضر": "vegetables",
+        "vegetables": "vegetables",
 
-        return entities[char];
-    });
-}
+        "فواكه": "fruits",
+        "الفواكه": "fruits",
+        "fruits": "fruits",
 
-// جلب المنتجات من Firestore
-async function loadProducts() {
-    try {
-        statusMessage.textContent = "جارٍ تحميل المنتجات...";
+        "حبوب": "grains",
+        "الحبوب": "grains",
+        "grains": "grains",
 
-        const snapshot = await getDocs(collection(db, "products"));
+        "اخرى": "other",
+        "أخرى": "other",
+        "other": "other"
+    };
 
-        allProducts = snapshot.docs.map(document => ({
-            id: document.id,
-            ...document.data()
-        }));
-
-        // ترتيب المنتجات من الأحدث إلى الأقدم
-        allProducts.sort((a, b) => {
-            const dateA = a.createdAt?.toMillis?.() || 0;
-            const dateB = b.createdAt?.toMillis?.() || 0;
-
-            return dateB - dateA;
-        });
-
-        displayProducts(allProducts);
-
-    } catch (error) {
-        console.error("خطأ في تحميل المنتجات:", error);
-
-        statusMessage.textContent =
-            "تعذر تحميل المنتجات. تحقق من اتصالك بالإنترنت.";
-
-        productsGrid.innerHTML = "";
-    }
+    return categories[value] || value;
 }
 
 // عرض المنتجات
-function displayProducts(products) {
+function displayProducts(list) {
+
+    if (!productsGrid) return;
+
     productsGrid.innerHTML = "";
 
-    if (products.length === 0) {
-        statusMessage.textContent = "لم يتم العثور على منتجات.";
+    if (list.length === 0) {
+        productsGrid.innerHTML =
+            '<p class="empty-message">لم يتم العثور على منتجات مطابقة للبحث.</p>';
         return;
     }
 
-    statusMessage.textContent = `عدد المنتجات: ${products.length}`;
+    list.forEach(product => {
 
-    products.forEach(product => {
-        const name = escapeHTML(product.name || "منتج بدون اسم");
-        const price = escapeHTML(product.price ?? "غير محدد");
-        const location = escapeHTML(product.location || "الموقع غير محدد");
-        const description = escapeHTML(product.description || "");
-        const category = normalizeCategory(product.category);
-        const categoryName = escapeHTML(
-            categoryNames[category] || product.category || "أخرى"
-        );
-
-        const image = product.imageUrl
-            ? escapeHTML(product.imageUrl)
-            : "";
-
-        const card = document.createElement("div");
+        const card = document.createElement("article");
         card.className = "product-card";
 
-        card.innerHTML = `
-            ${
-                image
-                    ? `<img src="${image}" alt="${name}" class="product-image">`
-                    : `<div class="product-image-placeholder">🌱</div>`
-            }
+        const image = document.createElement("img");
+        image.src = product.image;
+        image.alt = product.name;
+        image.loading = "lazy";
 
-            <div class="product-info">
-                <span class="product-category">${categoryName}</span>
+        const info = document.createElement("div");
+        info.className = "product-info";
 
-                <h3>${name}</h3>
+        const name = document.createElement("h3");
+        name.textContent = product.name;
 
-                <p class="product-price">
-                    ${price} دج
-                </p>
+        const price = document.createElement("p");
+        price.className = "product-price";
+        price.textContent =
+            `${product.price.toLocaleString("ar-DZ")} دج / ${product.unit}`;
 
-                <p class="product-location">
-                    📍 ${location}
-                </p>
+        const location = document.createElement("p");
+        location.className = "product-location";
+        location.textContent = "📍 " + product.wilaya;
 
-                ${
-                    description
-                        ? `<p class="product-description">${description}</p>`
-                        : ""
-                }
-            </div>
-        `;
+        info.append(name, price, location);
+        card.append(image, info);
 
         productsGrid.appendChild(card);
     });
@@ -166,46 +139,75 @@ function displayProducts(products) {
 
 // البحث والتصفية
 function filterProducts() {
-    const searchText = normalizeText(searchInput.value);
 
-    const selectedCategory = normalizeCategory(
-        categoryFilter.value
+    const search = normalizeText(
+        searchInput ? searchInput.value : ""
     );
 
-    const filteredProducts = allProducts.filter(product => {
+    const selectedCategory = normalizeCategory(
+        categoryFilter ? categoryFilter.value : ""
+    );
+
+    const selectedWilaya = wilayaFilter
+        ? wilayaFilter.value
+        : "";
+
+    const filtered = products.filter(product => {
 
         const productName = normalizeText(product.name);
-        const productLocation = normalizeText(product.location);
-        const productDescription = normalizeText(product.description);
+        const productCategory = normalizeCategory(product.category);
+        const productWilaya = normalizeText(product.wilaya);
 
         const matchesSearch =
-            !searchText ||
-            productName.includes(searchText) ||
-            productLocation.includes(searchText) ||
-            productDescription.includes(searchText);
-
-        const productCategory = normalizeCategory(product.category);
+            !search ||
+            productName.includes(search) ||
+            productCategory.includes(search) ||
+            productWilaya.includes(search);
 
         const matchesCategory =
             !selectedCategory ||
             selectedCategory === "all" ||
             productCategory === selectedCategory;
 
-        return matchesSearch && matchesCategory;
+        const matchesWilaya =
+            !selectedWilaya ||
+            product.wilaya === selectedWilaya;
+
+        return matchesSearch && matchesCategory && matchesWilaya;
     });
 
-    displayProducts(filteredProducts);
+    displayProducts(filtered);
+
+    if (statusMessage) {
+        statusMessage.textContent =
+            `عدد المنتجات المعروضة: ${filtered.length}`;
+    }
 }
 
-// تشغيل البحث عند الكتابة
+// ربط البحث
 if (searchInput) {
     searchInput.addEventListener("input", filterProducts);
 }
 
-// تشغيل التصفية عند اختيار التصنيف
+// ربط التصنيفات
 if (categoryFilter) {
     categoryFilter.addEventListener("change", filterProducts);
 }
 
-// تحميل المنتجات عند فتح الصفحة
-loadProducts();
+// ربط الولايات
+if (wilayaFilter) {
+    wilayaFilter.addEventListener("change", filterProducts);
+}
+
+// زر البحث
+const filterButton = document.querySelector(".search-box button");
+
+if (filterButton) {
+    filterButton.addEventListener("click", filterProducts);
+}
+
+// إتاحة الدالة للزر الموجود في HTML
+window.filterProducts = filterProducts;
+
+// عرض المنتجات عند فتح الصفحة
+displayProducts(products);
