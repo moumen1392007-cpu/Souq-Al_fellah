@@ -29,7 +29,6 @@ import {
     firebaseReady
 } from "./firebase.js";
 
-// عناصر الصفحة
 const productForm = document.getElementById("productForm");
 const myProducts = document.getElementById("myProducts");
 const dashboardMessage = document.getElementById("dashboardMessage");
@@ -39,9 +38,9 @@ const logoutButton = document.getElementById("logoutButton");
 let currentUser = null;
 let authorized = false;
 
-// إخفاء الصفحة حتى التحقق من الحساب
 document.body.style.visibility = "hidden";
 
+// الرسائل
 function showMessage(message, isError = false) {
     if (!dashboardMessage) return;
 
@@ -50,6 +49,7 @@ function showMessage(message, isError = false) {
     dashboardMessage.style.color = isError ? "#c0392b" : "#287348";
 }
 
+// التحقق من Firebase
 function checkFirebase() {
     if (!firebaseReady || !auth || !db || !storage) {
         showMessage("تعذر الاتصال بخدمات Firebase.", true);
@@ -59,7 +59,36 @@ function checkFirebase() {
     return true;
 }
 
-// التحقق من تسجيل الدخول وصلاحية الفلاح
+// زر تغيير نوع الحساب
+function createRoleButton() {
+    const button = document.createElement("button");
+
+    button.textContent = "🔄 تغيير نوع الحساب";
+
+    button.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 15px;
+        z-index: 9999;
+        padding: 13px 18px;
+        border: none;
+        border-radius: 12px;
+        background: #246b42;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 12px #0002;
+    `;
+
+    button.addEventListener("click", () => {
+        window.location.href = "choose-role.html";
+    });
+
+    document.body.appendChild(button);
+}
+
+// التحقق من الحساب
 onAuthStateChanged(auth, async (user) => {
     if (!firebaseReady || !user) {
         window.location.replace("index.html");
@@ -92,6 +121,8 @@ onAuthStateChanged(auth, async (user) => {
 
         document.body.style.visibility = "visible";
 
+        createRoleButton();
+
         await loadMyProducts();
 
     } catch (error) {
@@ -100,7 +131,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// إضافة منتج جديد
+// إضافة منتج
 if (productForm) {
     productForm.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -185,7 +216,7 @@ if (productForm) {
     });
 }
 
-// عرض منتجات الفلاح
+// عرض منتجات البائع
 async function loadMyProducts() {
     if (!authorized || !currentUser || !myProducts) return;
 
