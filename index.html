@@ -1,113 +1,191 @@
-<!DOCTYPE html><html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>سوق الفلاح | من أرض الجزائر إلى بيتك</title>
+
     <link rel="stylesheet" href="css/style.css">
+
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body><header class="header">
-    <a href="index.html" class="logo">
-        🌿 سوق الفلاح
-    </a><nav>
-    <a href="index.html">الرئيسية</a>
-    <a href="#products">المنتجات</a>
-    <a href="#about">من نحن</a>
-</nav>
 
-<div class="header-actions">
-    <a href="login.html" class="login-btn">دخول</a>
-    <a href="register.html" class="register-btn">إنشاء حساب</a>
-</div>
+<body>
 
-</header><section class="hero">
-    <div class="hero-content">
-        <span class="hero-label">🌱 من الفلاح مباشرة</span>
-        <h1>من أرض الجزائر<br>إلى بيتك</h1>
+    <!-- Header -->
+    <header class="header">
+
+        <a href="index.html" class="logo">
+            🌿 سوق الفلاح
+        </a>
+
+        <nav>
+            <a href="index.html">الرئيسية</a>
+            <a href="#products">المنتجات</a>
+            <a href="#about">من نحن</a>
+        </nav>
+
+        <div class="header-actions">
+            <a href="login.html" class="login-btn">دخول</a>
+            <a href="registre.html" class="register-btn">إنشاء حساب</a>
+        </div>
+
+    </header>
+
+
+    <!-- Hero Section -->
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <span class="hero-label">🌱 من الفلاح مباشرة</span>
+
+            <h1>
+                من أرض الجزائر
+                <br>
+                إلى بيتك
+            </h1>
+
+            <p>
+                اكتشف المنتجات الفلاحية الطازجة،
+                وتواصل مباشرة مع الفلاحين والبائعين
+                في جميع ولايات الجزائر.
+            </p>
+
+            <div class="hero-buttons">
+
+                <a href="#products" class="main-btn">
+                    اكتشف المنتجات
+                </a>
+
+                <a href="registre.html" class="secondary-btn">
+                    ابدأ البيع الآن
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Features -->
+    <section class="features">
+
+        <div class="feature">
+            <span>🥬</span>
+            <h3>منتجات طازجة</h3>
+            <p>منتجات فلاحية متنوعة.</p>
+        </div>
+
+        <div class="feature">
+            <span>🚜</span>
+            <h3>تواصل مباشر</h3>
+            <p>تواصل مع الفلاح دون وسيط.</p>
+        </div>
+
+        <div class="feature">
+            <span>📍</span>
+            <h3>جميع الولايات</h3>
+            <p>اكتشف البائعين بالقرب منك.</p>
+        </div>
+
+    </section>
+
+
+    <!-- Products Section -->
+    <section class="products-section" id="products">
+
+        <div class="section-heading">
+
+            <span>من خيرات أرضنا</span>
+
+            <h2>اكتشف المنتجات</h2>
+
+            <p>
+                أفضل المنتجات الفلاحية
+                من مختلف أنحاء الجزائر.
+            </p>
+
+        </div>
+
+
+        <!-- Search -->
+        <div class="search-box">
+
+            <input
+                type="search"
+                id="searchInput"
+                placeholder="ابحث عن منتج..."
+            >
+
+            <select id="categoryFilter">
+
+                <option value="">كل التصنيفات</option>
+
+                <option value="خضر">الخضر</option>
+
+                <option value="فواكه">الفواكه</option>
+
+                <option value="حبوب">الحبوب</option>
+
+                <option value="أخرى">منتجات أخرى</option>
+
+            </select>
+
+            <button onclick="filterProducts()">
+                بحث
+            </button>
+
+        </div>
+
+
+        <!-- Products Status -->
+        <p id="statusMessage" style="text-align:center; margin:15px;">
+            جارٍ تحميل المنتجات...
+        </p>
+
+
+        <!-- Products from Firebase -->
+        <div class="products-grid" id="productsGrid">
+
+            <!-- Products will be loaded automatically from Firestore -->
+
+        </div>
+
+    </section>
+
+
+    <!-- About -->
+    <section class="about-section" id="about">
+
+        <h2>لماذا سوق الفلاح؟</h2>
+
         <p>
-            اكتشف المنتجات الفلاحية الطازجة،
-            وتواصل مباشرة مع الفلاحين والبائعين في جميع ولايات الجزائر.
-        </p>    <div class="hero-buttons">
-        <a href="#products" class="main-btn">اكتشف المنتجات</a>
-        <a href="register.html" class="secondary-btn">ابدأ البيع الآن</a>
-    </div>
-</div>
+            نهدف إلى تقريب المسافة بين الفلاح والمستهلك،
+            ودعم الإنتاج المحلي الجزائري من خلال
+            منصة رقمية سهلة الاستخدام.
+        </p>
 
-</section><section class="features">
-    <div class="feature">
-        <span>🥬</span>
-        <h3>منتجات طازجة</h3>
-        <p>منتجات فلاحية متنوعة.</p>
-    </div><div class="feature">
-    <span>🚜</span>
-    <h3>تواصل مباشر</h3>
-    <p>تواصل مع الفلاح دون وسيط.</p>
-</div>
+    </section>
 
-<div class="feature">
-    <span>📍</span>
-    <h3>جميع الولايات</h3>
-    <p>اكتشف البائعين بالقرب منك.</p>
-</div>
 
-</section><section class="products-section" id="products">
-    <div class="section-heading">
-        <span>من خيرات أرضنا</span>
-        <h2>اكتشف المنتجات</h2>
-        <p>أفضل المنتجات الفلاحية من مختلف أنحاء الجزائر.</p>
-    </div><div class="search-box">
-    <input type="search" id="searchInput" placeholder="ابحث عن منتج...">
-    <select id="categoryFilter">
-        <option value="">كل التصنيفات</option>
-        <option value="خضر">الخضر</option>
-        <option value="فواكه">الفواكه</option>
-        <option value="حبوب">الحبوب</option>
-        <option value="أخرى">منتجات أخرى</option>
-    </select>
-    <button onclick="filterProducts()">بحث</button>
-</div>
+    <!-- Footer -->
+    <footer>
 
-<div class="products-grid" id="productsGrid">
-    <div class="product-card">
-        <img src="https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=600" alt="طماطم">
-        <div class="product-info">
-            <span class="category">خضر</span>
-            <h3>طماطم طازجة</h3>
-            <p>منتج فلاحي طازج</p>
-            <strong>120 دج / كغ</strong>
-        </div>
-    </div>
+        <h2>🌿 سوق الفلاح</h2>
 
-    <div class="product-card">
-        <img src="https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=600" alt="بطاطا">
-        <div class="product-info">
-            <span class="category">خضر</span>
-            <h3>بطاطا</h3>
-            <p>جودة ممتازة</p>
-            <strong>80 دج / كغ</strong>
-        </div>
-    </div>
+        <p>من أرض الجزائر إلى بيتك</p>
 
-    <div class="product-card">
-        <img src="https://images.unsplash.com/photo-1577234286642-fc512a5f8f11?w=600" alt="برتقال">
-        <div class="product-info">
-            <span class="category">فواكه</span>
-            <h3>برتقال</h3>
-            <p>برتقال طازج</p>
-            <strong>150 دج / كغ</strong>
-        </div>
-    </div>
-</div>
+        <p>© 2026 Souq Al-Fellah - جميع الحقوق محفوظة</p>
 
-</section><section class="about-section" id="about">
-    <h2>لماذا سوق الفلاح؟</h2>
-    <p>
-        نهدف إلى تقريب المسافة بين الفلاح والمستهلك،
-        ودعم الإنتاج المحلي الجزائري من خلال منصة رقمية سهلة الاستخدام.
-    </p>
-</section><footer>
-    <h2>🌿 سوق الفلاح</h2>
-    <p>من أرض الجزائر إلى بيتك</p>
-    <p>© 2026 Souq Al-Fellah - جميع الحقوق محفوظة</p>
-</footer><script src="js/app.js"></script></body>
+    </footer>
+
+
+    <!-- Firebase Application -->
+    <script type="module" src="js/app.js"></script>
+
+</body>
 </html>
