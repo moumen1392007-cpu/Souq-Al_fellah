@@ -36,11 +36,8 @@ const welcomeText = document.getElementById("welcomeText");
 const logoutButton = document.getElementById("logoutButton");
 
 let currentUser = null;
-let authorized = false;
+let currentUserData = null;
 
-document.body.style.visibility = "hidden";
-
-// الرسائل
 function showMessage(message, isError = false) {
     if (!dashboardMessage) return;
 
@@ -49,95 +46,65 @@ function showMessage(message, isError = false) {
     dashboardMessage.style.color = isError ? "#c0392b" : "#287348";
 }
 
-// التحقق من Firebase
 function checkFirebase() {
     if (!firebaseReady || !auth || !db || !storage) {
-        showMessage("تعذر الاتصال بخدمات Firebase.", true);
+        showMessage("يجب إعداد Firebase أولاً.", true);
         return false;
     }
 
     return true;
 }
 
-// زر تغيير نوع الحساب
-function createRoleButton() {
-    const button = document.createElement("button");
-
-    button.textContent = "🔄 تغيير نوع الحساب";
-
-    button.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 15px;
-        z-index: 9999;
-        padding: 13px 18px;
-        border: none;
-        border-radius: 12px;
-        background: #246b42;
-        color: white;
-        font-size: 14px;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 4px 12px #0002;
-    `;
-
-    button.addEventListener("click", () => {
-        window.location.href = "choose-role.html";
-    });
-
-    document.body.appendChild(button);
-}
-
-// التحقق من الحساب
+// التحقق من الحساب وصلاحية البائع
 onAuthStateChanged(auth, async (user) => {
-    if (!firebaseReady || !user) {
-        window.location.replace("index.html");
+    if (!firebaseReady || !auth || !db) {
+        showMessage("يجب إعداد Firebase أولاً.", true);
+        return;
+    }
+
+    if (!user) {
+        window.location.href = "login.html";
         return;
     }
 
     try {
+        currentUser = user;
+
         const userRef = doc(db, "users", user.uid);
         const userSnapshot = await getDoc(userRef);
 
         if (!userSnapshot.exists()) {
-            window.location.replace("index.html");
+            showMessage("لم يتم العثور على بيانات حسابك.", true);
             return;
         }
 
-        const userData = userSnapshot.data();
+        currentUserData = userSnapshot.data();
 
-        if (userData.role !== "seller") {
-            window.location.replace("index.html");
+        if (currentUserData.role !== "seller") {
+            showMessage("هذه الصفحة مخصصة للبائعين فقط.", true);
             return;
         }
-
-        currentUser = user;
-        authorized = true;
 
         if (welcomeText) {
             welcomeText.textContent =
-                `مرحباً ${userData.name || user.displayName || "بك"}، أهلاً بك في لوحة التحكم.`;
+                `مرحباً ${currentUserData.name || user.displayName || "بك"}، أهلاً بك في لوحة التحكم.`;
         }
-
-        document.body.style.visibility = "visible";
-
-        createRoleButton();
 
         await loadMyProducts();
 
     } catch (error) {
         console.error(error);
-        window.location.replace("index.html");
+        showMessage("حدث خطأ أثناء التحقق من حسابك.", true);
     }
 });
 
-// إضافة منتج
+// إضافة منتج جديد
 if (productForm) {
     productForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        if (!authorized || !currentUser || !checkFirebase()) {
-            showMessage("ليس لديك صلاحية إضافة المنتجات.", true);
+        if (!checkFirebase() || !currentUser || !currentUserData) {
+            showMessage("يرجى تسجيل الدخول أولاً.", true);
             return;
         }
 
@@ -183,22 +150,30 @@ if (productForm) {
 
             const imageUrl = await getDownloadURL(imageRef);
 
+            const sellerName =
+                currentUserData.name ||
+                currentUser.displayName ||
+                "بائع";
+
             await addDoc(collection(db, "products"), {
-                name,
-                category,
-                wilaya,
-                price,
-                unit,
-                description,
+                name: name,
+                category: category,
+                wilaya: wilaya,
+                price: price,
+                unit: unit,
+                description: description,
                 image: imageUrl,
-                imagePath,
+                imagePath: imagePath,
+
                 sellerId: currentUser.uid,
+                sellerName: sellerName,
+
                 createdAt: serverTimestamp()
             });
 
             productForm.reset();
 
-            showMessage("تمت إضافة المنتج بنجاح!");
+            showMessage("تم نشر المنتج والسعر بنجاح!");
 
             await loadMyProducts();
 
@@ -218,7 +193,7 @@ if (productForm) {
 
 // عرض منتجات البائع
 async function loadMyProducts() {
-    if (!authorized || !currentUser || !myProducts) return;
+    if (!currentUser || !myProducts) return;
 
     try {
         const productsQuery = query(
@@ -245,13 +220,16 @@ async function loadMyProducts() {
             const details = document.createElement("div");
 
             const title = document.createElement("strong");
-            title.textContent = product.name || "منتج";
+            title.textContent = product.name;
 
             const price = document.createElement("p");
             price.textContent =
-                `${Number(product.price).toLocaleString("ar-DZ")} دج / ${product.unit || "وحدة"}`;
+                `${Number(product.price).toLocaleString("ar-DZ")} دج / ${product.unit}`;
 
-            details.append(title, price);
+            const seller = document.createElement("p");
+            seller.textContent = `البائع: ${product.sellerName || "أنت"}`;
+
+            details.append(title, price, seller);
 
             const deleteButton = document.createElement("button");
             deleteButton.className = "delete-btn";
@@ -273,8 +251,6 @@ async function loadMyProducts() {
 
 // حذف منتج
 async function deleteProduct(productId, imagePath) {
-    if (!authorized || !currentUser) return;
-
     if (!confirm("هل تريد حذف هذا المنتج؟")) return;
 
     try {
@@ -283,9 +259,7 @@ async function deleteProduct(productId, imagePath) {
         if (imagePath) {
             try {
                 await deleteObject(ref(storage, imagePath));
-            } catch (error) {
-                console.warn("تعذر حذف صورة المنتج:", error);
-            }
+            } catch (_) {}
         }
 
         showMessage("تم حذف المنتج بنجاح.");
@@ -303,9 +277,8 @@ if (logoutButton) {
     logoutButton.addEventListener("click", async () => {
         try {
             await signOut(auth);
-            window.location.replace("index.html");
+            window.location.href = "index.html";
         } catch (error) {
-            console.error(error);
             showMessage("تعذر تسجيل الخروج.", true);
         }
     });
