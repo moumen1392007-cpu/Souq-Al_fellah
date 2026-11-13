@@ -154,7 +154,8 @@
                 }
 
                 await updateDoc(userRef, {
-                    role: role
+                    role: role,
+                    roleChosen: true
                 });
 
                 window.location.replace(
