@@ -7,12 +7,11 @@ service cloud.firestore {
     function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
     function roleOk(r) { return r in ['buyer', 'seller']; }
 
-    // العدّادات
+    // العدّادات: لا يغيّرها غير صاحب التفاعل نفسه (±1 مرتبطة بوثيقة تفاعله)
     function reactDelta(p, t) {
       return (existsAfter(p) && getAfter(p).data.type == t ? 1 : 0)
            - (exists(p) && get(p).data.type == t ? 1 : 0);
     }
-
     function counterUpdate(p) {
       let n = request.resource.data;
       let o = resource.data;
@@ -21,7 +20,6 @@ service cloud.firestore {
         && n.get('dislikes', 0) - o.get('dislikes', 0) == reactDelta(p, 'dislike')
         && n.get('commentsCount', 0) - o.get('commentsCount', 0) in [-1, 0, 1];
     }
-
     function countersKept() {
       let n = request.resource.data;
       let o = resource.data;
@@ -29,12 +27,12 @@ service cloud.firestore {
           && n.get('dislikes', 0) == o.get('dislikes', 0)
           && n.get('commentsCount', 0) == o.get('commentsCount', 0);
     }
-
     function countersZero() {
       let n = request.resource.data;
       return n.get('likes', 0) == 0 && n.get('dislikes', 0) == 0 && n.get('commentsCount', 0) == 0;
     }
 
+    // حساب المستخدم الخاص (فيه البريد) - يقرأه صاحبه فقط
     match /users/{userId} {
       allow read: if isSelf(userId);
       allow create: if isSelf(userId)
@@ -48,6 +46,7 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // الملف العام (بدون بريد) - يقرأه كل المسجلين، ويعدّله صاحبه فقط
     match /profiles/{userId} {
       allow read: if signedIn();
       allow create: if isSelf(userId)
@@ -68,6 +67,7 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // المنتجات القديمة (تبقى كما هي)
     match /products/{productId} {
       allow read: if true;
       allow create: if signedIn()
@@ -92,7 +92,6 @@ service cloud.firestore {
         allow delete: if signedIn() && (resource.data.authorId == request.auth.uid
                       || get(/databases/$(database)/documents/products/$(productId)).data.sellerId == request.auth.uid);
       }
-
       match /reactions/{userId} {
         allow read: if signedIn();
         allow create, update: if isSelf(userId) && request.resource.data.type in ['like', 'dislike'];
@@ -100,6 +99,7 @@ service cloud.firestore {
       }
     }
 
+    // المنشورات
     match /posts/{postId} {
       allow read: if signedIn();
       allow create: if signedIn()
@@ -126,7 +126,6 @@ service cloud.firestore {
         allow delete: if signedIn() && (resource.data.authorId == request.auth.uid
                       || get(/databases/$(database)/documents/posts/$(postId)).data.authorId == request.auth.uid);
       }
-
       match /reactions/{userId} {
         allow read: if signedIn();
         allow create, update: if isSelf(userId) && request.resource.data.type in ['like', 'dislike'];
@@ -134,6 +133,7 @@ service cloud.firestore {
       }
     }
 
+    // الإشعارات: يقرأها ويحذفها المستلم فقط
     match /notifications/{nid} {
       allow read: if signedIn() && resource.data.toUid == request.auth.uid;
       allow create: if signedIn()
@@ -155,6 +155,7 @@ service cloud.firestore {
                     || resource.data.fromUid == request.auth.uid);
     }
 
+    // المحادثات الخاصة: لا يقرأها إلا طرفاها
     match /conversations/{cid} {
       allow read: if signedIn() && request.auth.uid in resource.data.members;
       allow create: if signedIn()
@@ -177,6 +178,18 @@ service cloud.firestore {
                       && request.auth.uid in getAfter(/databases/$(database)/documents/conversations/$(cid)).data.members;
         allow update, delete: if false;
       }
+    }
+
+    // المتابعة: المعرّف = متابِع_متابَع، ولا ينشئه أو يحذفه إلا المتابِع نفسه
+    match /follows/{fid} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+                    && request.resource.data.followerId == request.auth.uid
+                    && request.resource.data.followedId is string
+                    && request.resource.data.followedId != request.auth.uid
+                    && fid == request.auth.uid + '_' + request.resource.data.followedId;
+      allow update: if false;
+      allow delete: if signedIn() && resource.data.followerId == request.auth.uid;
     }
   }
 }
