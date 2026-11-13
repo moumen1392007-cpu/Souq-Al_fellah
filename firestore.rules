@@ -3,90 +3,180 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function signedIn() {
-      return request.auth != null;
+    function signedIn() { return request.auth != null; }
+    function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
+    function roleOk(r) { return r in ['buyer', 'seller']; }
+
+    // العدّادات
+    function reactDelta(p, t) {
+      return (existsAfter(p) && getAfter(p).data.type == t ? 1 : 0)
+           - (exists(p) && get(p).data.type == t ? 1 : 0);
     }
 
-    // حسابات المستخدمين
+    function counterUpdate(p) {
+      let n = request.resource.data;
+      let o = resource.data;
+      return n.diff(o).affectedKeys().hasOnly(['likes', 'dislikes', 'commentsCount'])
+        && n.get('likes', 0) - o.get('likes', 0) == reactDelta(p, 'like')
+        && n.get('dislikes', 0) - o.get('dislikes', 0) == reactDelta(p, 'dislike')
+        && n.get('commentsCount', 0) - o.get('commentsCount', 0) in [-1, 0, 1];
+    }
+
+    function countersKept() {
+      let n = request.resource.data;
+      let o = resource.data;
+      return n.get('likes', 0) == o.get('likes', 0)
+          && n.get('dislikes', 0) == o.get('dislikes', 0)
+          && n.get('commentsCount', 0) == o.get('commentsCount', 0);
+    }
+
+    function countersZero() {
+      let n = request.resource.data;
+      return n.get('likes', 0) == 0 && n.get('dislikes', 0) == 0 && n.get('commentsCount', 0) == 0;
+    }
+
     match /users/{userId} {
-      allow read: if signedIn()
-                  && request.auth.uid == userId;
-
-      allow create: if signedIn()
-                    && request.auth.uid == userId
+      allow read: if isSelf(userId);
+      allow create: if isSelf(userId)
                     && request.resource.data.uid == request.auth.uid
-                    && request.resource.data.role in ['buyer', 'seller'];
-
-      allow update: if signedIn()
-                    && request.auth.uid == userId
+                    && roleOk(request.resource.data.role);
+      allow update: if isSelf(userId)
                     && request.resource.data.uid == resource.data.uid
-                    && request.resource.data.diff(resource.data)
-                       .affectedKeys().hasOnly(['role'])
-                    && request.resource.data.role in ['buyer', 'seller'];
-
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['role', 'roleChosen', 'name', 'displayName', 'wilaya', 'photoURL', 'updatedAt'])
+                    && roleOk(request.resource.data.role);
       allow delete: if false;
     }
 
-    // المنتجات والأسعار
+    match /profiles/{userId} {
+      allow read: if signedIn();
+      allow create: if isSelf(userId)
+                    && request.resource.data.uid == request.auth.uid
+                    && roleOk(request.resource.data.role)
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 60;
+      allow update: if isSelf(userId)
+                    && request.resource.data.uid == resource.data.uid
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['name', 'photoURL', 'role', 'wilaya', 'bio', 'updatedAt'])
+                    && roleOk(request.resource.data.role)
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 60
+                    && request.resource.data.get('bio', '').size() <= 300;
+      allow delete: if false;
+    }
+
     match /products/{productId} {
       allow read: if true;
-
       allow create: if signedIn()
                     && request.resource.data.sellerId == request.auth.uid
                     && request.resource.data.name is string
                     && request.resource.data.price is number
                     && request.resource.data.price > 0;
+      allow update: if signedIn() && (
+                      (resource.data.sellerId == request.auth.uid
+                        && request.resource.data.sellerId == request.auth.uid
+                        && countersKept())
+                      || counterUpdate(/databases/$(database)/documents/products/$(productId)/reactions/$(request.auth.uid)));
+      allow delete: if signedIn() && resource.data.sellerId == request.auth.uid;
 
-      allow update: if signedIn()
-                    && resource.data.sellerId == request.auth.uid
-                    && request.resource.data.sellerId == request.auth.uid;
+      match /comments/{commentId} {
+        allow read: if signedIn();
+        allow create: if signedIn()
+                      && request.resource.data.authorId == request.auth.uid
+                      && request.resource.data.text is string
+                      && request.resource.data.text.size() > 0
+                      && request.resource.data.text.size() <= 500;
+        allow delete: if signedIn() && (resource.data.authorId == request.auth.uid
+                      || get(/databases/$(database)/documents/products/$(productId)).data.sellerId == request.auth.uid);
+      }
 
-      allow delete: if signedIn()
-                    && resource.data.sellerId == request.auth.uid;
+      match /reactions/{userId} {
+        allow read: if signedIn();
+        allow create, update: if isSelf(userId) && request.resource.data.type in ['like', 'dislike'];
+        allow delete: if isSelf(userId);
+      }
     }
 
-    // المنشورات الاجتماعية
     match /posts/{postId} {
       allow read: if signedIn();
-
       allow create: if signedIn()
                     && request.resource.data.authorId == request.auth.uid
                     && request.resource.data.authorName is string
                     && request.resource.data.authorRole in ['buyer', 'seller']
-                    && request.resource.data.content is string;
+                    && (request.resource.data.get('content', '') is string)
+                    && request.resource.data.get('content', '').size() <= 2000
+                    && countersZero();
+      allow update: if signedIn() && (
+                      (resource.data.authorId == request.auth.uid
+                        && request.resource.data.authorId == request.auth.uid
+                        && countersKept())
+                      || counterUpdate(/databases/$(database)/documents/posts/$(postId)/reactions/$(request.auth.uid)));
+      allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
 
-      allow update: if signedIn()
-                    && resource.data.authorId == request.auth.uid
-                    && request.resource.data.authorId == request.auth.uid;
-
-      allow delete: if signedIn()
-                    && resource.data.authorId == request.auth.uid;
-
-      // التعليقات
       match /comments/{commentId} {
         allow read: if signedIn();
-
         allow create: if signedIn()
                       && request.resource.data.authorId == request.auth.uid
                       && request.resource.data.text is string
-                      && request.resource.data.text.size() > 0;
-
-        allow update, delete: if signedIn()
-                              && resource.data.authorId == request.auth.uid;
+                      && request.resource.data.text.size() > 0
+                      && request.resource.data.text.size() <= 500;
+        allow delete: if signedIn() && (resource.data.authorId == request.auth.uid
+                      || get(/databases/$(database)/documents/posts/$(postId)).data.authorId == request.auth.uid);
       }
 
-      // الإعجابات وعدم الإعجاب
       match /reactions/{userId} {
         allow read: if signedIn();
-
-        allow create, update: if signedIn()
-                              && request.auth.uid == userId
-                              && request.resource.data.type in ['like', 'dislike'];
-
-        allow delete: if signedIn()
-                      && request.auth.uid == userId;
+        allow create, update: if isSelf(userId) && request.resource.data.type in ['like', 'dislike'];
+        allow delete: if isSelf(userId);
       }
     }
 
+    match /notifications/{nid} {
+      allow read: if signedIn() && resource.data.toUid == request.auth.uid;
+      allow create: if signedIn()
+                    && request.resource.data.fromUid == request.auth.uid
+                    && request.resource.data.toUid is string
+                    && request.resource.data.toUid != request.auth.uid
+                    && request.resource.data.type in ['like', 'comment', 'message']
+                    && request.resource.data.read == false
+                    && (request.resource.data.type == 'comment'
+                        || nid.matches('.*_' + request.auth.uid));
+      allow update: if signedIn() && (
+                      (resource.data.toUid == request.auth.uid
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']))
+                      || (resource.data.fromUid == request.auth.uid
+                        && request.resource.data.fromUid == request.auth.uid
+                        && request.resource.data.toUid == resource.data.toUid));
+      allow delete: if signedIn() && (resource == null
+                    || resource.data.toUid == request.auth.uid
+                    || resource.data.fromUid == request.auth.uid);
+    }
+
+    match /conversations/{cid} {
+      allow read: if signedIn() && request.auth.uid in resource.data.members;
+      allow create: if signedIn()
+                    && request.auth.uid in request.resource.data.members
+                    && request.resource.data.members.size() == 2
+                    && cid == request.resource.data.members[0] + '_' + request.resource.data.members[1];
+      allow update: if signedIn()
+                    && request.auth.uid in resource.data.members
+                    && request.resource.data.members == resource.data.members;
+      allow delete: if false;
+
+      match /messages/{mid} {
+        allow read: if signedIn()
+                    && request.auth.uid in get(/databases/$(database)/documents/conversations/$(cid)).data.members;
+        allow create: if signedIn()
+                      && request.resource.data.senderId == request.auth.uid
+                      && request.resource.data.text is string
+                      && request.resource.data.text.size() > 0
+                      && request.resource.data.text.size() <= 1000
+                      && request.auth.uid in getAfter(/databases/$(database)/documents/conversations/$(cid)).data.members;
+        allow update, delete: if false;
+      }
+    }
   }
 }
