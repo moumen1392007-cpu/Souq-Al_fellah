@@ -46,7 +46,7 @@ function checkFirebase() {
 }
 
 // إنشاء أو تحديث بيانات المستخدم
-async function saveUser(user, name = "", role = "buyer", wilaya = "") {
+async function saveUser(user, name = "", role = "buyer", wilaya = "", roleChosen = false) {
     const userRef = doc(db, "users", user.uid);
     const snapshot = await getDoc(userRef);
 
@@ -56,6 +56,7 @@ async function saveUser(user, name = "", role = "buyer", wilaya = "") {
             name: name || user.displayName || "",
             email: user.email || "",
             role: role,
+            roleChosen: roleChosen,
             wilaya: wilaya,
             createdAt: serverTimestamp()
         });
@@ -65,8 +66,16 @@ async function saveUser(user, name = "", role = "buyer", wilaya = "") {
 }
 
 // الانتقال إلى اختيار الدور
-function goToMarket() {
-    window.location.replace("choose-role.html");
+async function goToMarket() {
+    let next = "index.html";
+    try {
+        const snap = await getDoc(doc(db, "users", auth.currentUser.uid));
+        if (snap.exists() && snap.data().roleChosen === false) {
+            next = "choose-role.html";
+        }
+    } catch (e) { console.error(e); }
+
+    window.location.replace(next);
 }
 
 // إنشاء حساب بالبريد الإلكتروني
@@ -100,7 +109,7 @@ if (registerForm) {
                 displayName: name
             });
 
-            await saveUser(result.user, name, role, wilaya);
+            await saveUser(result.user, name, role, wilaya, true);
 
             showMessage("تم إنشاء الحساب بنجاح!");
 
@@ -186,7 +195,7 @@ if (googleRegister) {
     googleRegister.addEventListener("click", googleSignIn);
 }
 
-// ترجمة رسائل الأخطاء
+// رسائل الأخطاء
 function getErrorMessage(code) {
     const errors = {
         "auth/email-already-in-use": "هذا البريد الإلكتروني مستخدم بالفعل.",
