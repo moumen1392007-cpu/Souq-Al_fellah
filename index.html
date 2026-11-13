@@ -86,7 +86,7 @@ nav .add{background:var(--wheat);color:var(--deep);border-radius:50%;width:50px;
 <script type="module">
 import {auth,db,storage} from "./js/firebase.js";
 import {onAuthStateChanged,signOut,updateProfile} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {collection,doc,getDoc,getDocs,setDoc,updateDoc,deleteDoc,query,orderBy,limit,startAfter,where,writeBatch,increment,serverTimestamp}
+import {collection,doc,getDoc,getDocs,setDoc,updateDoc,deleteDoc,query,orderBy,limit,startAfter,where,getCountFromServer,serverTimestamp}
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {ref,uploadBytes,getDownloadURL,deleteObject} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -99,6 +99,7 @@ const I={
  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
  like:'<path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h6a2 2 0 0 1 2 2.3l-1.2 6.5a2 2 0 0 1-2 1.7H7"/>',
  chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+ share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/>',
  trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>'};
 const ic=n=>`<svg viewBox="0 0 24 24">${I[n]}</svg>`;
 const CATS={vegetables:"الخضر",fruits:"الفواكه",grains:"الحبوب",other:"منتجات أخرى"};
@@ -106,7 +107,7 @@ let me=null,busy=false,cursor=null,corpus=[];
 
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2800)}
 function ago(ts){const s=ts?.toDate?(Date.now()-ts.toDate())/1000:0;if(s<60)return"الآن";if(s<3600)return`منذ ${Math.floor(s/60)} د`;if(s<86400)return`منذ ${Math.floor(s/3600)} س`;return`منذ ${Math.floor(s/86400)} يوم`}
-async function guard(btn,fn){if(busy)return;busy=true;btn&&(btn.disabled=true);try{await fn()}catch(e){console.error(e);toast(navigator.onLine?"تعذّر تنفيذ العملية. حاول مجدداً.":"لا يوجد اتصال بالإنترنت.")}finally{busy=false;btn&&(btn.disabled=false)}}
+async function guard(btn,fn){if(busy)return;busy=true;btn&&(btn.disabled=true);try{await fn()}catch(e){console.error(e);toast(e?.code==="storage/unauthorized"?"قواعد Storage الجديدة غير منشورة بعد في Firebase":e?.code==="permission-denied"?"رُفضت العملية. تأكد من نشر قواعد Firestore الجديدة":navigator.onLine?"تعذّر تنفيذ العملية. حاول مجدداً.":"لا يوجد اتصال بالإنترنت.")}finally{busy=false;btn&&(btn.disabled=false)}}
 
 // ملفات المستخدمين (الاسم والصورة تُقرأ دائماً من ملف المستخدم الحالي)
 const cache=new Map();
@@ -144,8 +145,9 @@ function postHTML(id,d){
    ${d.name?`<div class="pn">${esc(d.name)}</div>`:""}${price?`<div>${price}</div>`:""}
    ${(d.content||d.description)?`<p style="margin-top:6px;white-space:pre-wrap">${esc(d.content||d.description)}</p>`:""}
    ${(d.imageURL)?`<img class="img" src="${esc(d.imageURL)}" alt="" loading="lazy">`:""}
-   <div class="acts"><button class="act" data-do="like">${ic("like")}<b>${Math.max(0,d.likes||0)}</b></button>
-   <button class="act" data-do="cm">${ic("chat")}<b>${Math.max(0,d.commentsCount||0)}</b></button>
+   <div class="acts"><button class="act" data-do="like">${ic("like")}<b>…</b></button>
+   <button class="act" data-do="cm">${ic("chat")}<b>…</b></button>
+   <button class="act" data-do="share" aria-label="مشاركة">${ic("share")}</button>
    ${d.authorId===me.uid?`<button class="act del" data-do="del" aria-label="حذف">${ic("trash")}</button>`:""}</div>
    <div class="cms hide"></div></article>`;
 }
@@ -155,7 +157,10 @@ async function hydrate(root){
     el.innerHTML=`<a href="#u/${el.dataset.a}" style="text-decoration:none">${av(p)}</a><span><span class="nm" data-go="${el.dataset.a}">${esc(p.name)}</span>${p.role==="seller"?'<span class="tag">بائع</span>':""}</span>`;
   }
   for(const c of root.querySelectorAll("article:not([data-lk])")){
-    c.dataset.lk=1;getDoc(doc(db,"posts",c.dataset.id,"reactions",me.uid)).then(s=>s.exists()&&c.querySelector('[data-do=like]').classList.add("on")).catch(()=>{});
+    c.dataset.lk=1;const id=c.dataset.id,set=(k,n)=>{const e=c.querySelector(`[data-do=${k}] b`);if(e)e.textContent=n};
+    getDoc(doc(db,"posts",id,"reactions",me.uid)).then(s=>s.exists()&&s.data().type==="like"&&c.querySelector('[data-do=like]').classList.add("on")).catch(()=>{});
+    getCountFromServer(query(collection(db,"posts",id,"reactions"),where("type","==","like"))).then(r=>set("like",r.data().count)).catch(()=>set("like",0));
+    getCountFromServer(collection(db,"posts",id,"comments")).then(r=>set("cm",r.data().count)).catch(()=>set("cm",0));
   }
 }
 function showPosts(box,list,append){
@@ -167,7 +172,7 @@ function showPosts(box,list,append){
 V.addEventListener("click",e=>{
   const g=e.target.closest("[data-go]");if(g){location.hash="u/"+g.dataset.go;return}
   const b=e.target.closest("[data-do]");if(!b)return;const card=b.closest("article"),id=card?.dataset.id;
-  const A={like:()=>like(card,b),cm:()=>openComments(card),del:()=>delPost(card),
+  const A={like:()=>like(card,b),cm:()=>openComments(card),del:()=>delPost(card),share:()=>share(card),
    reply:()=>{const f=b.closest(".cms").querySelector("form");f.dataset.to=b.dataset.p;f.querySelector("input").placeholder="اكتب رداً...";f.querySelector("input").focus()},
    delcm:()=>delComment(card,b.dataset.c)};
   A[b.dataset.do]?.();
@@ -176,18 +181,16 @@ V.addEventListener("submit",e=>{
   const f=e.target.closest(".cmf");if(!f)return;e.preventDefault();
   const card=f.closest("article"),inp=f.querySelector("input"),text=inp.value.trim();if(!text)return;
   guard(f.querySelector("button"),async()=>{
-    const pid=card.dataset.id,r=doc(collection(db,"posts",pid,"comments")),b=writeBatch(db);
-    b.set(r,{authorId:me.uid,text,parentId:f.dataset.to||null,createdAt:serverTimestamp()});
-    b.update(doc(db,"posts",pid),{commentsCount:increment(1)});await b.commit();
+    const pid=card.dataset.id;
+    await setDoc(doc(collection(db,"posts",pid,"comments")),{authorId:me.uid,text,parentId:f.dataset.to||null,createdAt:serverTimestamp()});
     inp.value="";f.dataset.to="";inp.placeholder="اكتب تعليقاً...";bump(card,"cm",1);loadComments(card);
   });
 });
 function bump(card,k,n){const el=card.querySelector(`[data-do=${k}] b`);el.textContent=Math.max(0,(+el.textContent||0)+n)}
 
 function like(card,btn){guard(btn,async()=>{
-  const id=card.dataset.id,on=btn.classList.contains("on"),r=doc(db,"posts",id,"reactions",me.uid),b=writeBatch(db);
-  if(on)b.delete(r);else b.set(r,{type:"like",userId:me.uid,createdAt:serverTimestamp()});
-  b.update(doc(db,"posts",id),{likes:increment(on?-1:1)});await b.commit();
+  const id=card.dataset.id,on=btn.classList.contains("on"),r=doc(db,"posts",id,"reactions",me.uid);
+  if(on)await deleteDoc(r);else await setDoc(r,{type:"like",userId:me.uid,createdAt:serverTimestamp()});
   btn.classList.toggle("on",!on);bump(card,"like",on?-1:1);
 })}
 function delPost(card){if(!confirm("هل تريد حذف هذا المنشور؟"))return;guard(null,async()=>{
@@ -212,17 +215,34 @@ async function loadComments(card){
     `<form class="send cmf"><input maxlength="500" placeholder="اكتب تعليقاً..."><button>إرسال</button></form>`;
 }
 function delComment(card,cid){guard(null,async()=>{
-  const pid=card.dataset.id,b=writeBatch(db);b.delete(doc(db,"posts",pid,"comments",cid));
-  b.update(doc(db,"posts",pid),{commentsCount:increment(-1)});await b.commit();bump(card,"cm",-1);loadComments(card);
+  await deleteDoc(doc(db,"posts",card.dataset.id,"comments",cid));bump(card,"cm",-1);loadComments(card);
 })}
 
 // ===== الصفحات =====
+async function share(card){
+  const id=card.dataset.id,url=location.origin+location.pathname+"#p/"+id,title=card.querySelector(".pn")?.textContent||"منشور في سوق الفلاح";
+  try{if(navigator.share){await navigator.share({title,text:title,url});return}await navigator.clipboard.writeText(url);toast("تم نسخ رابط المنشور")}
+  catch(e){if(e?.name==="AbortError")return;prompt("انسخ الرابط:",url)}
+}
+let tab="all";
 async function home(more){
-  if(!more){cursor=null;V.innerHTML='<div id="feed"></div><button id="more" class="btn sm hide" style="margin:auto;display:flex">عرض المزيد</button>';$("#more").onclick=()=>home(true)}
+  if(!more){cursor=null;V.innerHTML=`<div class="chips" id="ht"><button data-t="all" class="${tab==="all"?"on":""}">الكل</button><button data-t="fol" class="${tab==="fol"?"on":""}">من أتابعهم</button></div><div id="feed"></div><button id="more" class="btn sm hide" style="margin:auto;display:flex">عرض المزيد</button>`;
+    $("#more").onclick=()=>home(true);$("#ht").onclick=e=>{const b=e.target.closest("button");if(b&&b.dataset.t!==tab){tab=b.dataset.t;route()}}}
+  if(tab==="fol"){
+    const fs=await getDocs(query(collection(db,"follows"),where("followerId","==",me.uid))),ids=fs.docs.map(d=>d.data().followedId).slice(0,30);
+    if(!ids.length){$("#feed").innerHTML='<div class="empty">لا تتابع أحداً بعد. افتح ملف بائع واضغط «متابعة» لتظهر منشوراته هنا.</div>';return}
+    const s=await getDocs(query(collection(db,"posts"),where("authorId","in",ids),limit(60)));
+    showPosts($("#feed"),s.docs.map(d=>[d.id,d.data({serverTimestamps:"estimate"})]).sort((a,b)=>(b[1].createdAt?.seconds||0)-(a[1].createdAt?.seconds||0)));return;
+  }
   const q=query(collection(db,"posts"),orderBy("createdAt","desc"),...(cursor?[startAfter(cursor)]:[]),limit(10));
   const s=await getDocs(q);cursor=s.docs.at(-1)||cursor;
   showPosts($("#feed"),s.docs.map(d=>[d.id,d.data({serverTimestamps:"estimate"})]),more);
   $("#more").classList.toggle("hide",s.size<10);
+}
+async function single(id){
+  const s=await getDoc(doc(db,"posts",id));
+  if(!s.exists()){V.innerHTML='<div class="empty">هذا المنشور غير موجود أو تم حذفه.</div>';return}
+  V.innerHTML="";showPosts(V,[[id,s.data({serverTimestamps:"estimate"})]]);
 }
 async function search(){
   V.innerHTML=`<input id="q" type="search" placeholder="ابحث عن منتج أو بائع..."><div class="chips" id="cc"><button class="on" data-c="">الكل</button>${Object.entries(CATS).map(([k,v])=>`<button data-c="${k}">${v}</button>`).join("")}</div><div id="res"></div>`;
@@ -253,15 +273,29 @@ function add(){
 async function profile(uid){
   const own=uid===me.uid,p=await prof(uid);
   if(!p.uid&&!own){V.innerHTML='<div class="empty">هذا المستخدم غير موجود.</div>';return}
-  const s=await getDocs(query(collection(db,"posts"),where("authorId","==",uid),limit(50)));
+  const fid=me.uid+"_"+uid,cnt=q=>getCountFromServer(q).then(x=>x.data().count).catch(()=>0);
+  const [s,fl,fg,mine]=await Promise.all([getDocs(query(collection(db,"posts"),where("authorId","==",uid),limit(50))),
+    cnt(query(collection(db,"follows"),where("followedId","==",uid))),cnt(query(collection(db,"follows"),where("followerId","==",uid))),
+    own?false:getDoc(doc(db,"follows",fid)).then(x=>x.exists()).catch(()=>false)]);
+  let fcount=fl,following=!!mine;
   const list=s.docs.map(d=>[d.id,d.data({serverTimestamps:"estimate"})]).sort((a,b)=>(b[1].createdAt?.seconds||0)-(a[1].createdAt?.seconds||0));
   const since=p.createdAt?.toDate?p.createdAt.toDate().toLocaleDateString("ar-DZ",{year:"numeric",month:"long"}):"";
   V.innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="cover"></div><div style="padding:0 16px 16px;text-align:center">
    <div style="margin-top:-48px">${av(p,"xl")}</div><h2>${esc(p.name)}</h2>
-   <div class="tm">${p.role==="seller"?"بائع":"مشتري"}${since?` • عضو منذ ${since}`:""} • ${list.length} منشور</div>
-   ${own?`<button class="btn sm" id="ed" style="background:var(--field);color:#fff;margin-top:10px">تعديل الحساب</button>`:""}</div></div>
+   <div class="tm">${p.role==="seller"?"بائع":"مشتري"}${since?` • عضو منذ ${since}`:""}</div>
+   <div class="tm"><b id="fc">${fcount}</b> متابِع • <b>${fg}</b> يتابع • <b>${list.length}</b> منشور</div>
+   ${own?`<button class="btn sm" id="ed" style="background:var(--field);color:#fff;margin-top:10px">تعديل الحساب</button>`
+        :`<button class="btn sm" id="fb" style="margin-top:10px"></button>`}</div></div>
    <div id="edit" class="hide"></div><div id="pp"></div>`;
   showPosts($("#pp"),list);
+  if(!own){
+    const paint=()=>{const b=$("#fb");b.textContent=following?"إلغاء المتابعة":"متابعة";b.style.background=following?"#fff":"var(--field)";b.style.color=following?"var(--field)":"#fff";b.style.border="1px solid var(--field)";$("#fc").textContent=fcount};
+    paint();$("#fb").onclick=()=>guard($("#fb"),async()=>{
+      if(following){await deleteDoc(doc(db,"follows",fid));following=false;fcount--}
+      else{await setDoc(doc(db,"follows",fid),{followerId:me.uid,followedId:uid,createdAt:serverTimestamp()});following=true;fcount++}
+      paint();
+    });
+  }
   if(own)$("#ed").onclick=()=>{const b=$("#edit");b.classList.toggle("hide");if(b.innerHTML)return;
     b.innerHTML=`<form class="card" id="ef"><b>إعدادات الحساب</b>
      <label>صورة الحساب</label><input type="file" id="ei" accept="image/*">
@@ -272,8 +306,9 @@ async function profile(uid){
     $("#er").value=p.role||"buyer";
     $("#lo").onclick=()=>signOut(auth).then(()=>location.hash="");
     $("#ef").onsubmit=e=>{e.preventDefault();guard($("#ef button"),async()=>{
-      const f=$("#ei").files[0],name=$("#en").value.trim(),role=$("#er").value;
-      const photoURL=f?await upload(f,`avatars/${me.uid}/a_${Date.now()}.jpg`,400):(p.photoURL||"");
+      const f=$("#ei").files[0],name=$("#en").value.trim(),role=$("#er").value;let photoURL=p.photoURL||"";
+      if(f){try{photoURL=await upload(f,`avatars/${me.uid}/a_${Date.now()}.jpg`,400)}
+        catch(err){if(err.code==="storage/unauthorized")photoURL=await upload(f,`posts/${me.uid}/avatar_${Date.now()}.jpg`,400);else throw err}}
       await updateDoc(doc(db,"profiles",me.uid),{name,photoURL,role,updatedAt:serverTimestamp()});
       updateDoc(doc(db,"users",me.uid),{name,photoURL,role,roleChosen:true,updatedAt:serverTimestamp()}).catch(()=>{});
       updateProfile(auth.currentUser,{displayName:name,photoURL}).catch(()=>{});
@@ -289,7 +324,7 @@ function route(){
   $("#nav").innerHTML=NAV.map(([id,l,i])=>`<button data-r="${id}" class="${id==="add"?"add":""} ${(k===id||(k==="u"&&id==="me"&&arg===me.uid))?"on":""}" aria-label="${l}">${ic(i)}${id==="add"?"":l}</button>`).join("");
   V.classList.remove("view");void V.offsetWidth;V.classList.add("view");scrollTo(0,0);
   V.innerHTML='<div class="empty">جارٍ التحميل...</div>';
-  const run={home:()=>home(),search,add,me:()=>profile(me.uid),u:()=>profile(arg)}[k]||(()=>home());
+  const run={home:()=>home(),search,add,me:()=>profile(me.uid),u:()=>profile(arg),p:()=>single(arg)}[k]||(()=>home());
   Promise.resolve(run()).catch(e=>{console.error(e);V.innerHTML=`<div class="empty">${navigator.onLine?"تعذّر تحميل الصفحة.":"لا يوجد اتصال بالإنترنت."}</div>`});
 }
 $("#nav").addEventListener("click",e=>{const b=e.target.closest("[data-r]");if(!b)return;const r=b.dataset.r;location.hash===("#"+r)?route():location.hash=r});
