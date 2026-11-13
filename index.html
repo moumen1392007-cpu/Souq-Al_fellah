@@ -34,7 +34,7 @@ main{max-width:640px;margin:0 auto;padding:14px 12px 110px}
 .card{background:#fff;border-radius:18px;padding:14px;margin-bottom:14px;border:1px solid var(--line)}
 .row{display:flex;align-items:center;gap:10px}
 .av{width:42px;height:42px;border-radius:50%;object-fit:cover;background:var(--sprout);color:var(--deep);display:grid;place-items:center;font-weight:800;flex:none}
-.av.xl{width:96px;height:96px;font-size:36px;border:4px solid #fff}
+.av.xl{width:96px;height:96px;font-size:36px;border:4px solid #fff;margin-inline:auto}
 .nm{font-weight:600;cursor:pointer}
 .tag{font-size:11px;background:#e5f4d9;color:var(--field);padding:1px 8px;border-radius:99px;margin-inline-start:6px}
 .tm{font-size:12px;color:var(--mute)}
@@ -93,7 +93,7 @@ import {auth,db,storage} from "./js/firebase.js";
 import {onAuthStateChanged,signOut,updateProfile} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {collection,doc,getDoc,getDocs,setDoc,updateDoc,deleteDoc,query,orderBy,limit,startAfter,where,getCountFromServer,serverTimestamp}
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import {ref,uploadBytes,getDownloadURL,deleteObject} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import {ref,uploadBytesResumable,getDownloadURL,deleteObject} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const $=s=>document.querySelector(s), V=$("#view");
 const esc=t=>String(t??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -112,7 +112,7 @@ let me=null,busy=false,cursor=null,corpus=[];
 
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2800)}
 function ago(ts){const s=ts?.toDate?(Date.now()-ts.toDate())/1000:0;if(s<60)return"الآن";if(s<3600)return`منذ ${Math.floor(s/60)} د`;if(s<86400)return`منذ ${Math.floor(s/3600)} س`;return`منذ ${Math.floor(s/86400)} يوم`}
-async function guard(btn,fn){if(busy)return;busy=true;btn&&(btn.disabled=true);try{await fn()}catch(e){console.error(e);toast(e?.code==="storage/unauthorized"?"قواعد Storage الجديدة غير منشورة بعد في Firebase":e?.code==="permission-denied"?"رُفضت العملية. تأكد من نشر قواعد Firestore الجديدة":navigator.onLine?"تعذّر تنفيذ العملية. حاول مجدداً.":"لا يوجد اتصال بالإنترنت.")}finally{busy=false;btn&&(btn.disabled=false)}}
+async function guard(btn,fn){if(busy)return;busy=true;btn&&(btn.disabled=true);try{await fn()}catch(e){console.error(e);toast(e?.code==="timeout"?"انتهت مهلة العملية. تحقق من الاتصال وحاول مجدداً":e?.code==="storage/unauthorized"?"قواعد Storage الجديدة غير منشورة بعد في Firebase":e?.code==="permission-denied"?"رُفضت العملية. تأكد من نشر قواعد Firestore الجديدة":navigator.onLine?"تعذّر تنفيذ العملية. حاول مجدداً.":"لا يوجد اتصال بالإنترنت.")}finally{busy=false;btn&&(btn.disabled=false)}}
 
 // ملفات المستخدمين (الاسم والصورة تُقرأ دائماً من ملف المستخدم الحالي)
 const cache=new Map();
@@ -140,7 +140,12 @@ onAuthStateChanged(auth,async u=>{
 
 // ===== الصور =====
 function shrink(file,max,q=.82){return new Promise((ok,no)=>{const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);c.toBlob(b=>b?ok(b):no(),"image/jpeg",q)};im.onerror=no;im.src=URL.createObjectURL(file)})}
-async function putBlob(b,path){const r=ref(storage,path);await uploadBytes(r,b,{contentType:"image/jpeg"});return getDownloadURL(r)}
+const TO=()=>Object.assign(new Error("timeout"),{code:"timeout"});
+const within=(p,ms)=>Promise.race([p,new Promise((_,no)=>setTimeout(()=>no(TO()),ms))]);
+function putBlob(b,path,onp){return new Promise((ok,no)=>{
+  const t=uploadBytesResumable(ref(storage,path),b,{contentType:"image/jpeg"}),h=setTimeout(()=>{t.cancel();no(TO())},45000);
+  t.on("state_changed",s=>onp&&onp(Math.round(100*s.bytesTransferred/Math.max(1,s.totalBytes))),e=>{clearTimeout(h);no(e)},()=>{clearTimeout(h);getDownloadURL(t.snapshot.ref).then(ok,no)});
+})}
 async function upload(file,path,max){return putBlob(await shrink(file,max),path)}
 // قص دائري: اسحب الصورة وكبّرها لاختيار الجزء الظاهر بالضبط
 function cropper(file){return new Promise((ok,no)=>{
@@ -330,10 +335,14 @@ async function profile(uid){
   if(own){const fi=$("#ei");$("#ph").onclick=()=>fi.click();
     fi.onchange=async()=>{const f=fi.files[0];fi.value="";if(!f)return;let blob;
       try{blob=await cropper(f)}catch(err){if(err.message!=="cancel")toast("تعذّر فتح الصورة. جرّب صورة بصيغة JPG أو PNG");return}
-      guard($("#ph"),async()=>{let url;
-        try{url=await putBlob(blob,`avatars/${me.uid}/a_${Date.now()}.jpg`)}
-        catch(err){if(err.code==="storage/unauthorized")url=await putBlob(blob,`posts/${me.uid}/avatar_${Date.now()}.jpg`);else throw err}
-        await updateDoc(doc(db,"profiles",me.uid),{photoURL:url,updatedAt:serverTimestamp()});
+      const old=V.querySelector(".av.xl"),pv=document.createElement("img"),btn=$("#ph"),lbl=btn.textContent;
+      pv.className="av xl";pv.alt="";pv.src=URL.createObjectURL(blob);old.replaceWith(pv); // تظهر الصورة الجديدة فوراً
+      const prog=n=>{btn.textContent=`جارٍ الرفع ${n}%`};
+      guard(btn,async()=>{let url;
+        try{try{url=await putBlob(blob,`avatars/${me.uid}/a_${Date.now()}.jpg`,prog)}
+        catch(err){if(err.code==="storage/unauthorized")url=await putBlob(blob,`posts/${me.uid}/avatar_${Date.now()}.jpg`,prog);else throw err}
+        await within(updateDoc(doc(db,"profiles",me.uid),{photoURL:url,updatedAt:serverTimestamp()}),20000);
+        }catch(err){btn.textContent=lbl;pv.replaceWith(old);throw err}
         updateDoc(doc(db,"users",me.uid),{photoURL:url,updatedAt:serverTimestamp()}).catch(()=>{});
         updateProfile(auth.currentUser,{photoURL:url}).catch(()=>{});
         me={...me,photoURL:url};cache.set(me.uid,Promise.resolve(me));toast("تم تحديث صورة الحساب");profile(me.uid);
