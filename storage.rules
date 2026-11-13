@@ -3,27 +3,34 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
+    function signedIn() { return request.auth != null; }
+    function isOwner(userId) { return signedIn() && request.auth.uid == userId; }
+
+    function validImage(maxMB) {
+      return request.resource != null
+          && request.resource.size < maxMB * 1024 * 1024
+          && request.resource.contentType.matches('image/.*');
+    }
+
     // صور المنتجات
     match /products/{userId}/{fileName} {
-      allow read: if request.auth != null;
-
-      allow write: if request.auth != null
-                   && request.auth.uid == userId
-                   && request.resource != null
-                   && request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
+      allow read: if signedIn();
+      allow create, update: if isOwner(userId) && validImage(5);
+      allow delete: if isOwner(userId);
     }
 
     // صور المنشورات
     match /posts/{userId}/{fileName} {
-      allow read: if request.auth != null;
-
-      allow write: if request.auth != null
-                   && request.auth.uid == userId
-                   && request.resource != null
-                   && request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
+      allow read: if signedIn();
+      allow create, update: if isOwner(userId) && validImage(5);
+      allow delete: if isOwner(userId);
     }
 
+    // صور الحسابات الشخصية
+    match /avatars/{userId}/{fileName} {
+      allow read: if signedIn();
+      allow create, update: if isOwner(userId) && validImage(2);
+      allow delete: if isOwner(userId);
+    }
   }
 }
