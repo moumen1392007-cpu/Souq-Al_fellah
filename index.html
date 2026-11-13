@@ -64,6 +64,11 @@ nav button.on{color:#fff;background:var(--field)}
 nav .add{background:var(--wheat);color:var(--deep);border-radius:50%;width:50px;height:50px;justify-content:center;margin-top:-22px;box-shadow:0 4px 12px #0003}
 #toast{position:fixed;top:70px;inset-inline:0;margin:auto;width:max-content;max-width:90%;background:var(--ink);color:#fff;padding:9px 18px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:20}
 #toast.show{opacity:1}
+.modal{position:fixed;inset:0;background:#000b;z-index:30;display:grid;place-items:center;padding:16px}
+.mbox{background:#fff;border-radius:22px;padding:18px;width:100%;max-width:340px;text-align:center}
+.stage{width:280px;height:280px;margin:14px auto;position:relative;overflow:hidden;border-radius:50%;touch-action:none;cursor:grab;background:var(--line);outline:3px solid var(--sprout)}
+.stage img{position:absolute;left:0;top:0;max-width:none;user-select:none;pointer-events:none}
+.mbox input[type=range]{padding:0;border:0;margin:0}
 @media(min-width:900px){main{padding-top:24px}}
 </style>
 </head>
@@ -135,7 +140,33 @@ onAuthStateChanged(auth,async u=>{
 
 // ===== الصور =====
 function shrink(file,max,q=.82){return new Promise((ok,no)=>{const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);c.toBlob(b=>b?ok(b):no(),"image/jpeg",q)};im.onerror=no;im.src=URL.createObjectURL(file)})}
-async function upload(file,path,max){const r=ref(storage,path);await uploadBytes(r,await shrink(file,max),{contentType:"image/jpeg"});return getDownloadURL(r)}
+async function putBlob(b,path){const r=ref(storage,path);await uploadBytes(r,b,{contentType:"image/jpeg"});return getDownloadURL(r)}
+async function upload(file,path,max){return putBlob(await shrink(file,max),path)}
+// قص دائري: اسحب الصورة وكبّرها لاختيار الجزء الظاهر بالضبط
+function cropper(file){return new Promise((ok,no)=>{
+  const url=URL.createObjectURL(file),im=new Image();
+  im.onerror=()=>no(new Error("img"));
+  im.onload=()=>{
+    const S=280,w=im.naturalWidth,h=im.naturalHeight,base=Math.max(S/w,S/h);let z=1,x=(S-w*base)/2,y=(S-h*base)/2,d=null;
+    const m=document.createElement("div");m.className="modal";
+    m.innerHTML=`<div class="mbox"><b>حرّك الصورة لاختيار الجزء الظاهر</b><div class="stage"><img src="${url}" alt="" draggable="false"></div>
+     <input type="range" min="1" max="3" step="0.01" value="1" aria-label="تكبير">
+     <div class="row" style="gap:8px;margin-top:14px"><button class="btn sm" data-k="ok" style="background:var(--field);color:#fff;flex:1">اعتماد الصورة</button><button class="btn sm" data-k="no" style="background:var(--line);color:var(--ink);flex:1">إلغاء</button></div></div>`;
+    document.body.appendChild(m);
+    const img=m.querySelector("img"),st=m.querySelector(".stage"),zr=m.querySelector("input");
+    const draw=()=>{const s=base*z;x=Math.min(0,Math.max(S-w*s,x));y=Math.min(0,Math.max(S-h*s,y));img.style.width=w*s+"px";img.style.height=h*s+"px";img.style.transform=`translate(${x}px,${y}px)`};
+    const end=b=>{m.remove();URL.revokeObjectURL(url);b?ok(b):no(new Error("cancel"))};
+    st.onpointerdown=e=>{d={px:e.clientX,py:e.clientY,x,y};st.setPointerCapture(e.pointerId)};
+    st.onpointermove=e=>{if(!d)return;x=d.x+e.clientX-d.px;y=d.y+e.clientY-d.py;draw()};
+    st.onpointerup=st.onpointercancel=()=>{d=null};
+    zr.oninput=()=>{const c=S/2,ox=(c-x)/(base*z),oy=(c-y)/(base*z);z=+zr.value;x=c-ox*base*z;y=c-oy*base*z;draw()};
+    m.querySelector('[data-k=no]').onclick=()=>end(null);
+    m.querySelector('[data-k=ok]').onclick=()=>{const c=document.createElement("canvas"),s=base*z;c.width=c.height=400;
+      c.getContext("2d").drawImage(im,-x/s,-y/s,S/s,S/s,0,0,400,400);c.toBlob(b=>b?end(b):no(new Error("img")),"image/jpeg",.85)};
+    draw();
+  };
+  im.src=url;
+})}
 
 // ===== المنشورات =====
 function postHTML(id,d){
@@ -284,7 +315,7 @@ async function profile(uid){
    <div style="margin-top:-48px">${av(p,"xl")}</div><h2>${esc(p.name)}</h2>
    <div class="tm">${p.role==="seller"?"بائع":"مشتري"}${since?` • عضو منذ ${since}`:""}</div>
    <div class="tm"><b id="fc">${fcount}</b> متابِع • <b>${fg}</b> يتابع • <b>${list.length}</b> منشور</div>
-   ${own?`<button class="btn sm" id="ed" style="background:var(--field);color:#fff;margin-top:10px">تعديل الحساب</button>`
+   ${own?`<div class="row" style="justify-content:center;gap:8px;margin-top:10px"><button class="btn sm" id="ph" style="background:var(--wheat);color:var(--deep)">تغيير الصورة</button><button class="btn sm" id="ed" style="background:var(--field);color:#fff">تعديل الحساب</button><input type="file" id="ei" accept="image/*" hidden></div>`
         :`<button class="btn sm" id="fb" style="margin-top:10px"></button>`}</div></div>
    <div id="edit" class="hide"></div><div id="pp"></div>`;
   showPosts($("#pp"),list);
@@ -296,9 +327,19 @@ async function profile(uid){
       paint();
     });
   }
+  if(own){const fi=$("#ei");$("#ph").onclick=()=>fi.click();
+    fi.onchange=async()=>{const f=fi.files[0];fi.value="";if(!f)return;let blob;
+      try{blob=await cropper(f)}catch(err){if(err.message!=="cancel")toast("تعذّر فتح الصورة. جرّب صورة بصيغة JPG أو PNG");return}
+      guard($("#ph"),async()=>{let url;
+        try{url=await putBlob(blob,`avatars/${me.uid}/a_${Date.now()}.jpg`)}
+        catch(err){if(err.code==="storage/unauthorized")url=await putBlob(blob,`posts/${me.uid}/avatar_${Date.now()}.jpg`);else throw err}
+        await updateDoc(doc(db,"profiles",me.uid),{photoURL:url,updatedAt:serverTimestamp()});
+        updateDoc(doc(db,"users",me.uid),{photoURL:url,updatedAt:serverTimestamp()}).catch(()=>{});
+        updateProfile(auth.currentUser,{photoURL:url}).catch(()=>{});
+        me={...me,photoURL:url};cache.set(me.uid,Promise.resolve(me));toast("تم تحديث صورة الحساب");profile(me.uid);
+      })};}
   if(own)$("#ed").onclick=()=>{const b=$("#edit");b.classList.toggle("hide");if(b.innerHTML)return;
     b.innerHTML=`<form class="card" id="ef"><b>إعدادات الحساب</b>
-     <label>صورة الحساب</label><input type="file" id="ei" accept="image/*">
      <label>الاسم</label><input id="en" maxlength="60" required value="${esc(p.name)}">
      <label>نوع الحساب</label><select id="er"><option value="buyer">مشتري</option><option value="seller">بائع</option></select>
      <button class="btn" style="margin-top:14px;background:var(--field);color:#fff">حفظ التغييرات</button>
@@ -306,9 +347,7 @@ async function profile(uid){
     $("#er").value=p.role||"buyer";
     $("#lo").onclick=()=>signOut(auth).then(()=>location.hash="");
     $("#ef").onsubmit=e=>{e.preventDefault();guard($("#ef button"),async()=>{
-      const f=$("#ei").files[0],name=$("#en").value.trim(),role=$("#er").value;let photoURL=p.photoURL||"";
-      if(f){try{photoURL=await upload(f,`avatars/${me.uid}/a_${Date.now()}.jpg`,400)}
-        catch(err){if(err.code==="storage/unauthorized")photoURL=await upload(f,`posts/${me.uid}/avatar_${Date.now()}.jpg`,400);else throw err}}
+      const name=$("#en").value.trim(),role=$("#er").value,photoURL=me.photoURL||"";
       await updateDoc(doc(db,"profiles",me.uid),{name,photoURL,role,updatedAt:serverTimestamp()});
       updateDoc(doc(db,"users",me.uid),{name,photoURL,role,roleChosen:true,updatedAt:serverTimestamp()}).catch(()=>{});
       updateProfile(auth.currentUser,{displayName:name,photoURL}).catch(()=>{});
