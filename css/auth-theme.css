@@ -1,0 +1,27 @@
+/* مظهر صفحات الدخول والتسجيل واختيار نوع الحساب (يُحمَّل بعد أنماط الصفحة نفسها) */
+body{font-family:Cairo,system-ui,sans-serif!important;background:#f1f5ee!important;color:#17261d}
+.header{background:#12301f!important;box-shadow:none!important;padding:14px 5%!important}
+.logo{color:#fff!important;font-weight:800!important;font-size:21px!important}
+.logo span{color:#b8e07a!important}
+.home-link{color:#b8e07a!important;font-weight:700!important}
+.auth-main{position:relative;align-items:flex-start!important;padding-top:34px!important}
+.auth-main:before{content:"";position:absolute;inset:0 0 auto;height:210px;background:repeating-linear-gradient(168deg,#1b4a2f 0 22px,#215a37 22px 44px)}
+.auth-card{position:relative;border-radius:28px!important;border:1px solid #e0e8dc!important;box-shadow:0 18px 50px #12301f1f!important}
+.brand-icon{display:grid!important;place-items:center;width:64px!important;height:64px!important;border-radius:20px!important;background:#12301f!important;margin:0 auto 10px!important;font-size:0!important}
+.brand-icon:before{content:"";width:32px;height:32px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b8e07a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19c0-9 5-14 15-14 0 10-5 15-14 15'/%3E%3Cpath d='M5 19c3-6 6-8 10-10'/%3E%3C/svg%3E") center/contain no-repeat}
+.auth-card h1{color:#12301f!important;font-weight:800!important}
+.form-group label{color:#4a5d51!important}
+.form-group input,.form-group select{border-radius:14px!important;border:1.5px solid #e0e8dc!important;background:#fff!important}
+.form-group input:focus,.form-group select:focus{border-color:#2f7d4e!important;box-shadow:0 0 0 3px #2f7d4e22!important;outline:0}
+.main-btn{background:#f0a73a!important;color:#12301f!important;border-radius:16px!important;font-weight:800!important}
+.main-btn:hover{background:#e29a2c!important}
+.google-btn{border-radius:16px!important;border:1.5px solid #e0e8dc!important;font-weight:700!important}
+.form-link a{color:#2f7d4e!important}
+.message{border-radius:12px!important}
+/* اختيار نوع الحساب */
+.container{border-radius:28px!important;border:1px solid #e0e8dc;box-shadow:0 18px 50px #12301f1f!important}
+.container h1{color:#12301f!important;font-weight:800}
+.role{border-radius:20px!important;border:2px solid #e0e8dc!important}
+.role:hover{border-color:#2f7d4e!important;background:#f3f9ee!important}
+.role strong{color:#12301f!important}
+.icon svg{width:44px;height:44px;fill:none;stroke:#2f7d4e;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
