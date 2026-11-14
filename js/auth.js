@@ -66,6 +66,7 @@ async function saveUser(user, name = "", role = "buyer", wilaya = "", roleChosen
 }
 
 // الانتقال إلى اختيار الدور
+// الحسابات الجديدة فقط تمر بصفحة اختيار النوع، أما العائدون فيذهبون للرئيسية
 async function goToMarket() {
     let next = "index.html";
     try {
@@ -74,7 +75,6 @@ async function goToMarket() {
             next = "choose-role.html";
         }
     } catch (e) { console.error(e); }
-
     window.location.replace(next);
 }
 
@@ -195,7 +195,7 @@ if (googleRegister) {
     googleRegister.addEventListener("click", googleSignIn);
 }
 
-// رسائل الأخطاء
+// ترجمة رسائل الأخطاء
 function getErrorMessage(code) {
     const errors = {
         "auth/email-already-in-use": "هذا البريد الإلكتروني مستخدم بالفعل.",
