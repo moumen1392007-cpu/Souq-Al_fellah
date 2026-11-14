@@ -6,83 +6,131 @@
 <title>سوق الفلاح</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--deep:#173d28;--field:#2f8a4c;--sprout:#8fcf6a;--wheat:#e2b84f;--soil:#7b5638;--bg:#eef3ec;--ink:#1d2b22;--mute:#6b7a70;--line:#dbe5d9}
+:root{--deep:#12301f;--field:#2f7d4e;--sprout:#b8e07a;--wheat:#f0a73a;--soil:#a8602d;--bg:#f1f5ee;--ink:#17261d;--mute:#66756b;--line:#e0e8dc;--r:22px}
 *{box-sizing:border-box;margin:0}
-body{font-family:Cairo,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+body{font-family:Cairo,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer;border:0}
+button{cursor:pointer;border:0;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid var(--wheat);outline-offset:2px}
 .hide{display:none!important}
 svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
-/* ترحيب: صفوف المحصول */
-#welcome{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;color:#fff;padding:28px 22px 40px;
-background:repeating-linear-gradient(172deg,#1d5a37 0 26px,#236b41 26px 52px),var(--deep);position:relative}
-#welcome:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#173d2800 25%,#173d28f2 78%)}
-#welcome>*{position:relative;max-width:460px;width:100%;margin-inline:auto}
-#welcome h1{font-size:46px;font-weight:800;line-height:1.2}
-#welcome p{opacity:.9;margin:10px 0 24px}
-.btn{display:block;text-align:center;text-decoration:none;padding:13px;border-radius:14px;font-weight:600;background:var(--wheat);color:var(--deep);width:100%}
-.btn.alt{background:#ffffff22;color:#fff;margin-top:10px}
-.btn.sm{width:auto;display:inline-flex;gap:6px;justify-content:center;padding:9px 16px;font-size:14px}
+/* الترحيب */
+#welcome{position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;color:#fff;background:var(--deep)}
+#welcome .scene{position:absolute;inset:0;width:100%;height:100%;stroke:none;stroke-width:0}
+#welcome:after{content:"";position:absolute;inset:auto 0 0;height:50%;background:linear-gradient(#12301f00,#12301ff2 58%)}
+.wbrand{position:absolute;top:20px;right:20px;z-index:2;display:flex;align-items:center;gap:8px;font-weight:800;font-size:19px;color:var(--deep)}
+.wc{position:relative;z-index:2;width:100%;max-width:460px;margin:0 auto;padding:0 24px 34px}
+.wc h1{font-size:clamp(36px,11vw,52px);line-height:1.18;font-weight:800;margin:14px 0 10px}
+.wc p{opacity:.86;margin-bottom:22px;font-size:15px}
+.wchips{display:flex;gap:8px;flex-wrap:wrap}
+.wchips span{display:flex;align-items:center;gap:6px;background:#ffffff22;border:1px solid #ffffff33;backdrop-filter:blur(6px);border-radius:99px;padding:3px 12px 3px 14px;font-size:13px;font-weight:600}
+.wchips svg{width:17px;height:17px;color:var(--sprout)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;text-decoration:none;padding:14px 18px;border-radius:16px;font-weight:700;background:var(--wheat);color:var(--deep);width:100%;transition:transform .15s,opacity .2s}
+.btn:active{transform:scale(.98)}
+.btn.alt{background:#ffffff1f;color:#fff;border:1px solid #ffffff44;margin-top:10px;backdrop-filter:blur(6px)}
+.btn.sm{width:auto;display:inline-flex;padding:9px 18px;font-size:14px;border-radius:14px}
 .btn:disabled{opacity:.5}
 /* التطبيق */
-header{position:sticky;top:0;z-index:5;background:var(--deep);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:8px;font-weight:800;font-size:20px}
-header svg{color:var(--sprout)}
-main{max-width:640px;margin:0 auto;padding:14px 12px 110px}
-.view{animation:in .25s ease}
-@keyframes in{from{opacity:0;transform:translateY(6px)}}
-@media(prefers-reduced-motion:reduce){.view{animation:none}}
-.card{background:#fff;border-radius:18px;padding:14px;margin-bottom:14px;border:1px solid var(--line)}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#f1f5eee8;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #e0e8dc99}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:19px;color:var(--deep);text-decoration:none}
+.logo{width:34px;height:34px;border-radius:11px;background:var(--deep);color:var(--sprout);display:grid;place-items:center}
+.logo svg{width:20px;height:20px}
+#hav .av{width:36px;height:36px}
+main{max-width:620px;margin:0 auto;padding:12px 14px 120px}
+.view{animation:in .28s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+@media(prefers-reduced-motion:reduce){.view{animation:none}nav button{transition:none}}
+.hero{position:relative;overflow:hidden;border-radius:26px;padding:20px;color:#fff;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;min-height:128px;background:repeating-linear-gradient(168deg,#1b4a2f 0 22px,#215a37 22px 44px)}
+.hero:before{content:"";position:absolute;width:150px;height:150px;border-radius:50%;left:-44px;top:-62px;background:radial-gradient(circle at 35% 35%,#ffe9a6,#f0a73a)}
+.hero>*{position:relative}
+.hero .hi{font-size:13px;opacity:.8}.hero h2{font-size:24px;line-height:1.3}.hero p{font-size:13px;opacity:.88;max-width:220px}
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.cat-t{display:flex;flex-direction:column;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:12px 4px;text-decoration:none;color:var(--ink);font-size:12px;font-weight:600;transition:transform .15s}
+.cat-t:active{transform:scale(.95)}
+.cat-t i{width:44px;height:44px;border-radius:16px;display:grid;place-items:center;background:#e6f2d8;color:var(--field)}
+.card{background:#fff;border-radius:var(--r);padding:16px;margin-bottom:14px;border:1px solid var(--line)}
+.post{padding:0;overflow:hidden;box-shadow:0 8px 26px #12301f0d}
+.ph{display:flex;align-items:center;gap:10px;padding:12px 14px}
 .row{display:flex;align-items:center;gap:10px}
 .av{width:42px;height:42px;border-radius:50%;object-fit:cover;background:var(--sprout);color:var(--deep);display:grid;place-items:center;font-weight:800;flex:none}
-.av.xl{width:96px;height:96px;font-size:36px;border:4px solid #fff;margin-inline:auto}
-.nm{font-weight:600;cursor:pointer}
-.tag{font-size:11px;background:#e5f4d9;color:var(--field);padding:1px 8px;border-radius:99px;margin-inline-start:6px}
+.av.xl{width:96px;height:96px;font-size:36px;border:4px solid #fff;margin-inline:auto;box-shadow:0 6px 18px #12301f33}
+.nm{font-weight:700;cursor:pointer}
+.tag{font-size:11px;background:#e5f4d0;color:var(--field);padding:0 9px;border-radius:99px;margin-inline-start:6px;font-weight:600}
 .tm{font-size:12px;color:var(--mute)}
-.pn{font-weight:800;font-size:18px;margin-top:10px}
-.pr{color:var(--soil);font-weight:800}
-.chip{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:99px;padding:1px 10px;margin-inline-start:6px;color:var(--mute)}
-.img{width:100%;max-height:420px;object-fit:cover;border-radius:14px;margin-top:10px;background:var(--line)}
-.acts{display:flex;gap:6px;margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
-.act{display:flex;align-items:center;gap:6px;background:none;color:var(--mute);padding:6px 10px;border-radius:10px}
-.act.on{color:var(--field);background:#e5f4d9}.act.del{margin-inline-start:auto}
+.media{position:relative}
+.img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:linear-gradient(135deg,#dfe9d8,#cddbc3)}
+.price{position:absolute;bottom:12px;right:12px;background:var(--wheat);color:var(--deep);font-weight:800;font-size:18px;padding:3px 14px;border-radius:14px;box-shadow:0 6px 16px #0003}
+.price small{font-size:11px;font-weight:700}
+.price.in{position:static;display:inline-block;margin-top:6px;box-shadow:none}
+.cat{position:absolute;top:12px;right:12px;background:#12301fcc;color:#fff;backdrop-filter:blur(6px);font-size:12px;font-weight:600;padding:2px 12px;border-radius:99px}
+.body{padding:12px 14px 14px}
+.pn{font-size:18px;font-weight:800;line-height:1.45}
+.desc{color:#3f5046;font-size:14.5px;margin-top:4px;white-space:pre-wrap}
+.acts{display:flex;gap:6px;margin-top:12px}
+.act{display:flex;align-items:center;gap:6px;background:var(--bg);color:var(--mute);padding:7px 14px;border-radius:99px;font-weight:700;font-size:13px;transition:background .2s,color .2s,transform .15s}
+.act:active{transform:scale(.93)}
+.act.on{color:#fff;background:var(--field)}.act.on svg{fill:currentColor}
+.act.del{margin-inline-start:auto;color:#b3402e;background:#fbeae6}
+.cms{margin-top:10px;border-top:1px solid var(--line);padding-top:4px}
 .cm{margin-top:10px}
-.cm .b{background:var(--bg);border-radius:14px;padding:8px 12px;flex:1}
-.cm .rp{margin-inline-start:44px}
-.lk{background:none;color:var(--field);font-size:12px;padding:2px 6px}
-input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px;background:#fff;margin-top:6px}
-label{font-size:13px;color:var(--mute);display:block;margin-top:10px}
+.cm .b{background:var(--bg);border-radius:16px;padding:8px 12px;flex:1}
+.cm.rp{margin-inline-start:42px}.cm.rp .av{width:32px;height:32px;font-size:14px}
+.lk{background:none;color:var(--field);font-size:12px;font-weight:700;padding:2px 6px}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:11px 13px;background:#fff;margin-top:6px;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--field)}
+label{font-size:13px;font-weight:600;color:var(--mute);display:block;margin-top:12px}
 .send{display:flex;gap:6px;margin-top:10px}.send input{margin:0}
-.send button{background:var(--field);color:#fff;border-radius:12px;padding:0 14px}
-.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0}
-.chips button{white-space:nowrap;background:#fff;border:1px solid var(--line);border-radius:99px;padding:5px 14px}
-.chips button.on{background:var(--field);color:#fff;border-color:var(--field)}
-.cover{height:110px;border-radius:18px 18px 0 0;background:repeating-linear-gradient(172deg,#1d5a37 0 18px,#2f8a4c 18px 36px)}
-.empty{text-align:center;color:var(--mute);padding:30px 10px}
-nav{position:fixed;bottom:max(12px,env(safe-area-inset-bottom));inset-inline:12px;max-width:420px;margin-inline:auto;background:#fff;border-radius:22px;box-shadow:0 8px 28px #173d2833;display:flex;justify-content:space-around;padding:6px}
-nav button{background:none;color:var(--mute);display:flex;flex-direction:column;align-items:center;font-size:11px;padding:6px 14px;border-radius:16px;transition:.2s}
-nav button.on{color:#fff;background:var(--field)}
-nav .add{background:var(--wheat);color:var(--deep);border-radius:50%;width:50px;height:50px;justify-content:center;margin-top:-22px;box-shadow:0 4px 12px #0003}
-#toast{position:fixed;top:70px;inset-inline:0;margin:auto;width:max-content;max-width:90%;background:var(--ink);color:#fff;padding:9px 18px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:20}
-#toast.show{opacity:1}
+.send button{background:var(--field);color:#fff;border-radius:14px;padding:0 16px;font-weight:700}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+.chips button{white-space:nowrap;background:#fff;border:1px solid var(--line);border-radius:99px;padding:6px 16px;font-weight:700;font-size:13px;color:var(--mute)}
+.chips button.on{background:var(--deep);color:#fff;border-color:var(--deep)}
+.cover{height:124px;background:repeating-linear-gradient(168deg,#1b4a2f 0 20px,#215a37 20px 40px)}
+.empty{text-align:center;color:var(--mute);padding:34px 10px}
+nav{position:fixed;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:10;display:flex;align-items:center;gap:4px;padding:6px;background:#12301ff2;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:32px;box-shadow:0 14px 34px #12301f55}
+nav button{display:flex;align-items:center;gap:8px;height:48px;min-width:48px;padding:0 13px;border-radius:24px;background:none;color:#cfe3d2;font-weight:700;font-size:13.5px;transition:background .25s,color .25s,padding .25s}
+nav button span{display:none}
+nav button.on{background:var(--sprout);color:var(--deep);padding:0 18px}
+nav button.on span{display:inline}
+nav button.add{background:var(--wheat);color:var(--deep);width:52px;height:52px;min-width:52px;padding:0;justify-content:center;margin:0 3px;box-shadow:0 4px 14px #f0a73a66}
+nav button.add span{display:none!important}
+nav button.add svg{width:26px;height:26px;stroke-width:2.4}
 .modal{position:fixed;inset:0;background:#000b;z-index:30;display:grid;place-items:center;padding:16px}
-.mbox{background:#fff;border-radius:22px;padding:18px;width:100%;max-width:340px;text-align:center}
+.mbox{background:#fff;border-radius:24px;padding:18px;width:100%;max-width:340px;text-align:center}
 .stage{width:280px;height:280px;margin:14px auto;position:relative;overflow:hidden;border-radius:50%;touch-action:none;cursor:grab;background:var(--line);outline:3px solid var(--sprout)}
 .stage img{position:absolute;left:0;top:0;max-width:none;user-select:none;pointer-events:none}
+.drop{position:relative;display:grid;place-items:center;height:170px;margin-top:6px;border:2px dashed #b9cdb2;border-radius:18px;background:#f6faf3 center/cover no-repeat;color:var(--field);cursor:pointer;overflow:hidden}
+.drop input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.drop .dt{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px}.drop.has .dt{display:none}
 .mbox input[type=range]{padding:0;border:0;margin:0}
-@media(min-width:900px){main{padding-top:24px}}
+#toast{position:fixed;top:74px;inset-inline:0;margin:auto;width:max-content;max-width:90%;background:var(--deep);color:#fff;padding:10px 20px;border-radius:14px;font-weight:600;font-size:14px;opacity:0;transform:translateY(-8px);pointer-events:none;transition:.25s;z-index:40;box-shadow:0 10px 26px #12301f55}
+#toast.show{opacity:1;transform:none}
+@media(min-width:900px){main{padding-top:26px}}
 </style>
 </head>
 <body>
 
 <section id="welcome" class="hide">
-  <h1>سوق الفلاح</h1>
-  <p>من أرض الجزائر إلى بيتك. الفلاحون يعرضون محاصيلهم، والمشترون يطلبونها مباشرة.</p>
-  <a class="btn" href="register.html">إنشاء حساب</a>
-  <a class="btn alt" href="login.html">تسجيل الدخول</a>
+  <svg class="scene" viewBox="0 0 400 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe3a1"/><stop offset=".6" stop-color="#f4b455"/></linearGradient></defs>
+    <rect width="400" height="640" fill="url(#sky)"/>
+    <circle cx="290" cy="170" r="66" fill="#fff3c8"/><circle cx="290" cy="170" r="92" fill="#fff3c8" opacity=".35"/>
+    <path d="M0 300C70 250 140 270 210 300S340 330 400 280V640H0z" fill="#9ccf72"/>
+    <path d="M0 365C90 325 170 355 250 375S350 385 400 350V640H0z" fill="#57a35c"/>
+    <path d="M0 430C100 400 200 435 400 405V640H0z" fill="#2f7d4e"/>
+    <g stroke="#1f6a40" stroke-width="3" opacity=".8"><path d="M200 428L-120 640M200 428L-20 640M200 428L80 640M200 428L200 640M200 428L320 640M200 428L420 640M200 428L520 640"/></g>
+  </svg>
+  <div class="wbrand"><span class="logo"><svg viewBox="0 0 24 24"><path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15"/><path d="M5 19c3-6 6-8 10-10"/></svg></span>سوق الفلاح</div>
+  <div class="wc">
+    <div class="wchips"><span><svg viewBox="0 0 24 24"><path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15"/><path d="M5 19c3-6 6-8 10-10"/></svg>الخضر</span><span><svg viewBox="0 0 24 24"><path d="M12 7c-2-2-6-1-6 4 0 4 3 9 6 9s6-5 6-9c0-5-4-6-6-4z"/><path d="M12 7c0-2 1-4 3-4"/></svg>الفواكه</span><span><svg viewBox="0 0 24 24"><path d="M12 21V8"/><path d="M12 8c-3 0-4-2-4-4 3 0 4 2 4 4zM12 8c3 0 4-2 4-4-3 0-4 2-4 4zM12 14c-3 0-4-2-4-4 3 0 4 2 4 4zM12 14c3 0 4-2 4-4-3 0-4 2-4 4z"/></svg>الحبوب</span></div>
+    <h1>من أرض الجزائر<br>إلى بيتك</h1>
+    <p>سوق يجمع الفلاحين والبائعين والمشترين. اعرض محصولك، أو اطلب ما تحتاجه مباشرة من أهله.</p>
+    <a class="btn" href="register.html">إنشاء حساب جديد</a>
+    <a class="btn alt" href="login.html">لدي حساب بالفعل</a>
+  </div>
 </section>
 
 <div id="app" class="hide">
-  <header><svg viewBox="0 0 24 24"><path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15"/><path d="M5 19c3-6 6-8 10-10"/></svg>سوق الفلاح</header>
+  <header><a class="brand" href="#home"><span class="logo"><svg viewBox="0 0 24 24"><path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15"/><path d="M5 19c3-6 6-8 10-10"/></svg></span>سوق الفلاح</a><a id="hav" href="#me" aria-label="حسابي"></a></header>
   <main id="view"></main>
   <nav id="nav"></nav>
 </div>
@@ -105,6 +153,8 @@ const I={
  like:'<path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h6a2 2 0 0 1 2 2.3l-1.2 6.5a2 2 0 0 1-2 1.7H7"/>',
  chat:'<path d="M4 5h16v11H9l-5 4z"/>',
  share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/>',
+ vegetables:'<path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15"/><path d="M5 19c3-6 6-8 10-10"/>',fruits:'<path d="M12 7c-2-2-6-1-6 4 0 4 3 9 6 9s6-5 6-9c0-5-4-6-6-4z"/><path d="M12 7c0-2 1-4 3-4"/>',grains:'<path d="M12 21V8"/><path d="M12 8c-3 0-4-2-4-4 3 0 4 2 4 4zM12 8c3 0 4-2 4-4-3 0-4 2-4 4zM12 14c-3 0-4-2-4-4 3 0 4 2 4 4zM12 14c3 0 4-2 4-4-3 0-4 2-4 4z"/>',other:'<path d="M4 10h16l-1.5 9h-13z"/><path d="M8 10l3-6M16 10l-3-6"/>',
+ camera:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
  trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>'};
 const ic=n=>`<svg viewBox="0 0 24 24">${I[n]}</svg>`;
 const CATS={vegetables:"الخضر",fruits:"الفواكه",grains:"الحبوب",other:"منتجات أخرى"};
@@ -175,17 +225,16 @@ function cropper(file){return new Promise((ok,no)=>{
 
 // ===== المنشورات =====
 function postHTML(id,d){
-  const price=d.price?`<span class="pr">${Number(d.price).toLocaleString("ar-DZ")} دج</span>${d.category?`<span class="chip">${CATS[d.category]||""}</span>`:""}`:"";
-  return `<article class="card" data-id="${id}" data-owner="${esc(d.authorId)}">
-   <div class="row"><span data-a="${esc(d.authorId)}" class="row"></span><span class="tm" style="margin-inline-start:auto">${ago(d.createdAt)}</span></div>
-   ${d.name?`<div class="pn">${esc(d.name)}</div>`:""}${price?`<div>${price}</div>`:""}
-   ${(d.content||d.description)?`<p style="margin-top:6px;white-space:pre-wrap">${esc(d.content||d.description)}</p>`:""}
-   ${(d.imageURL)?`<img class="img" src="${esc(d.imageURL)}" alt="" loading="lazy">`:""}
+  const pr=d.price?`<span class="price">${Number(d.price).toLocaleString("ar-DZ")} <small>دج</small></span>`:"",desc=d.content||d.description;
+  return `<article class="card post" data-id="${id}" data-owner="${esc(d.authorId)}">
+   <div class="ph"><span data-a="${esc(d.authorId)}" class="row"></span><span class="tm" style="margin-inline-start:auto">${ago(d.createdAt)}</span></div>
+   ${d.imageURL?`<div class="media"><img class="img" src="${esc(d.imageURL)}" alt="${esc(d.name||"")}" loading="lazy" decoding="async">${pr}${CATS[d.category]?`<span class="cat">${CATS[d.category]}</span>`:""}</div>`:""}
+   <div class="body">${d.name?`<h3 class="pn">${esc(d.name)}</h3>`:""}${!d.imageURL&&pr?pr.replace('class="price"','class="price in"'):""}${desc?`<p class="desc">${esc(desc)}</p>`:""}
    <div class="acts"><button class="act" data-do="like">${ic("like")}<b>…</b></button>
    <button class="act" data-do="cm">${ic("chat")}<b>…</b></button>
    <button class="act" data-do="share" aria-label="مشاركة">${ic("share")}</button>
    ${d.authorId===me.uid?`<button class="act del" data-do="del" aria-label="حذف">${ic("trash")}</button>`:""}</div>
-   <div class="cms hide"></div></article>`;
+   <div class="cms hide"></div></div></article>`;
 }
 async function hydrate(root){
   for(const el of root.querySelectorAll("[data-a]:not([data-ok])")){
@@ -262,7 +311,7 @@ async function share(card){
 }
 let tab="all";
 async function home(more){
-  if(!more){cursor=null;V.innerHTML=`<div class="chips" id="ht"><button data-t="all" class="${tab==="all"?"on":""}">الكل</button><button data-t="fol" class="${tab==="fol"?"on":""}">من أتابعهم</button></div><div id="feed"></div><button id="more" class="btn sm hide" style="margin:auto;display:flex">عرض المزيد</button>`;
+  if(!more){cursor=null;V.innerHTML=`<section class="hero"><div><span class="hi">أهلاً بك</span><h2>${esc(me.name)}</h2><p>${me.role==="seller"?"اعرض محصولك اليوم لمئات المشترين.":"اكتشف أطيب ما أنتجته أرض الجزائر."}</p></div>${me.role==="seller"?'<a class="btn sm" href="#add">انشر منتجاً</a>':""}</section><div class="cats">${Object.entries(CATS).map(([k,v])=>`<a class="cat-t" href="#search/${k}"><i>${ic(k)}</i>${v}</a>`).join("")}</div><div class="chips" id="ht"><button data-t="all" class="${tab==="all"?"on":""}">الكل</button><button data-t="fol" class="${tab==="fol"?"on":""}">من أتابعهم</button></div><div id="feed"></div><button id="more" class="btn sm hide" style="margin:auto;display:flex">عرض المزيد</button>`;
     $("#more").onclick=()=>home(true);$("#ht").onclick=e=>{const b=e.target.closest("button");if(b&&b.dataset.t!==tab){tab=b.dataset.t;route()}}}
   if(tab==="fol"){
     const fs=await getDocs(query(collection(db,"follows"),where("followerId","==",me.uid))),ids=fs.docs.map(d=>d.data().followedId).slice(0,30);
@@ -280,10 +329,11 @@ async function single(id){
   if(!s.exists()){V.innerHTML='<div class="empty">هذا المنشور غير موجود أو تم حذفه.</div>';return}
   V.innerHTML="";showPosts(V,[[id,s.data({serverTimestamps:"estimate"})]]);
 }
-async function search(){
-  V.innerHTML=`<input id="q" type="search" placeholder="ابحث عن منتج أو بائع..."><div class="chips" id="cc"><button class="on" data-c="">الكل</button>${Object.entries(CATS).map(([k,v])=>`<button data-c="${k}">${v}</button>`).join("")}</div><div id="res"></div>`;
+async function search(pre=""){
+  let cat=CATS[pre]?pre:"";
+  V.innerHTML=`<input id="q" type="search" placeholder="ابحث عن منتج أو بائع..."><div class="chips" id="cc"><button class="${cat?"":"on"}" data-c="">الكل</button>${Object.entries(CATS).map(([k,v])=>`<button class="${cat===k?"on":""}" data-c="${k}">${v}</button>`).join("")}</div><div id="res"></div>`;
   if(!corpus.length){const s=await getDocs(query(collection(db,"posts"),orderBy("createdAt","desc"),limit(80)));corpus=s.docs.map(d=>[d.id,d.data({serverTimestamps:"estimate"})])}
-  let cat="";const nz=t=>String(t||"").toLowerCase().replace(/[\u064B-\u0652]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي");
+  const nz=t=>String(t||"").toLowerCase().replace(/[\u064B-\u0652]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي");
   const names=new Map(await Promise.all([...new Set(corpus.map(([,d])=>d.authorId))].map(async u=>[u,nz((await prof(u)).name)])));
   const run=()=>{const q=nz($("#q").value);
     showPosts($("#res"),corpus.filter(([,d])=>(!cat||d.category===cat)&&(!q||[d.name,d.content,d.description,CATS[d.category],names.get(d.authorId)].some(x=>nz(x).includes(q)))).slice(0,30));};
@@ -293,12 +343,13 @@ async function search(){
 function add(){
   if(me.role!=="seller"){V.innerHTML=`<div class="card empty">النشر متاح لحسابات البائعين.<br><br><a class="btn sm" style="background:var(--field);color:#fff" href="#me">غيّر نوع حسابك من الملف الشخصي</a></div>`;return}
   V.innerHTML=`<form class="card" id="pf"><b>منتج جديد</b>
-   <label>صورة المنتج</label><input type="file" id="pi" accept="image/*" required>
+   <label>صورة المنتج</label><label class="drop" id="dz"><input type="file" id="pi" accept="image/*" required><span class="dt">${ic("camera")}<b>اضغط لإضافة صورة المنتج</b></span></label>
    <label>اسم المنتج</label><input id="pn" maxlength="100" required placeholder="مثال: طماطم طازجة">
    <label>التصنيف</label><select id="pc" required>${Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select>
    <label>السعر (دج)</label><input id="pp" type="number" min="1" step="any" required>
    <label>الوصف</label><textarea id="pd" rows="4" maxlength="2000"></textarea>
    <button class="btn" style="margin-top:14px;background:var(--field);color:#fff">نشر المنتج</button></form>`;
+  $("#pi").onchange=e=>{const f=e.target.files[0];if(f){$("#dz").style.backgroundImage=`url(${URL.createObjectURL(f)})`;$("#dz").classList.add("has")}};
   $("#pf").onsubmit=e=>{e.preventDefault();guard($("#pf button"),async()=>{
     const path=`posts/${me.uid}/${Date.now()}.jpg`,url=await upload($("#pi").files[0],path,1280);
     await setDoc(doc(collection(db,"posts")),{authorId:me.uid,authorName:me.name,authorRole:"seller",name:$("#pn").value.trim(),category:$("#pc").value,
@@ -369,10 +420,11 @@ async function profile(uid){
 const NAV=[["home","الرئيسية","home"],["search","البحث","search"],["add","نشر","plus"],["me","حسابي","user"]];
 function route(){
   if(!me)return;const h=location.hash.slice(1)||"home",[k,arg]=h.split("/");
-  $("#nav").innerHTML=NAV.map(([id,l,i])=>`<button data-r="${id}" class="${id==="add"?"add":""} ${(k===id||(k==="u"&&id==="me"&&arg===me.uid))?"on":""}" aria-label="${l}">${ic(i)}${id==="add"?"":l}</button>`).join("");
+  $("#nav").innerHTML=NAV.map(([id,l,i])=>`<button data-r="${id}" class="${id==="add"?"add":""} ${(k===id||(k==="u"&&id==="me"&&arg===me.uid))?"on":""}" aria-label="${l}">${ic(i)}<span>${l}</span></button>`).join("");
+  $("#hav").innerHTML=av(me);
   V.classList.remove("view");void V.offsetWidth;V.classList.add("view");scrollTo(0,0);
   V.innerHTML='<div class="empty">جارٍ التحميل...</div>';
-  const run={home:()=>home(),search,add,me:()=>profile(me.uid),u:()=>profile(arg),p:()=>single(arg)}[k]||(()=>home());
+  const run={home:()=>home(),search:()=>search(arg),add,me:()=>profile(me.uid),u:()=>profile(arg),p:()=>single(arg)}[k]||(()=>home());
   Promise.resolve(run()).catch(e=>{console.error(e);V.innerHTML=`<div class="empty">${navigator.onLine?"تعذّر تحميل الصفحة.":"لا يوجد اتصال بالإنترنت."}</div>`});
 }
 $("#nav").addEventListener("click",e=>{const b=e.target.closest("[data-r]");if(!b)return;const r=b.dataset.r;location.hash===("#"+r)?route():location.hash=r});
